@@ -7,13 +7,16 @@ const VERSION = 'v0';
 function verificationService(secret) {
 
   const verifyRequest = function(timestamp, body, signature) {
-    // TODO: make sure timestamp is recent
+    const currentTimestamp = (new Date()).getTime() / 1000;
+    if (Math.abs(currentTimestamp - timestamp) > 60 * 5) {
+      const msg = 'Timestamp not recent enough.';
+      logger.error(msg);
+      throw new Error('Something went wrong.');
+    }
     const hmac = crypto.createHmac('sha256', secret);
     const sigBasestring = [VERSION, timestamp, body].join(':');
     hmac.update(sigBasestring);
     const sigExpected = VERSION + '=' + hmac.digest('hex');
-    logger.debug(sigExpected);
-    logger.debug(signature);
     let verified = false;
     try {
       verified = crypto.timingSafeEqual(Buffer.from(sigExpected), Buffer.from(signature));
