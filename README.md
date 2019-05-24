@@ -19,37 +19,37 @@ Searches all channel-like conversations and suggests terms to define.
 Searches the glossary for the term. If no similar entry is found, prompts user to add a definition for the entry.
 
 ## General API
-`[GET]   /entries`
+`[ GET]  /entries`
 
 `[POST]  /entries`
 
-`[GET]   /entries/:entryId`
+`[ GET]  /entries/:entryId`
 
-`[GET]   /entries/:entryId/definitions`
+`[ GET]  /entries/:entryId/definitions`
 
 `[POST]  /entries/:entryId/definitions`
 
-`[GET]   /definitions`
+`[ GET]  /definitions`
 
 `[POST]  /definitions`
 
-`[GET]   /definitions/:definitionId`
+`[ GET]  /definitions/:definitionId`
 
 `[POST]  /definitions/:definitionId/votes`
 
 # TODO
 
-TODO (MVP):
-- [] Persistent DB integration with MongoDB (make sure to follow all security protocols!)
-- [] Flagging of definitions (all)
-- [] Deleting of definitions (admins)
-- [] Deleting of entries (admins)
-- [] General API security
-- [] Slack request verification (secure slack integration API from DDoS / malicious intent)
-- [] Test terms that have spaces in them
-- [] Improve matching algorithm
-- [] Improve search performance with binaryIndexOf
+## TODO (MVP):
+- [ ] Persistent DB integration with MongoDB (make sure to follow all security protocols!)
+- [ ] Flagging of definitions (all)
+- [ ] Deleting of definitions (admins)
+- [ ] Deleting of entries (admins)
+- [ ] General API security
+- [x] Slack request verification (secure slack integration API from DDoS / malicious intent)
+- [ ] Test terms that have spaces in them
+- [ ] Improve matching algorithm
+- [ ] Improve search performance with binaryIndexOf
 
-TODO (Backlog):
-- [] "Spaces" to localize entries and definitions
-- [] Google Hangouts Chat integration 
+## TODO (Backlog):
+- [ ] "Spaces" to localize entries and definitions
+- [ ] Google Hangouts Chat integration 

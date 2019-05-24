@@ -7,7 +7,7 @@ const logger = log4js.getLogger();
 const STARTING_DICTIONARY = require('../../../api/helpers/starting-dictionary');
 
 const SLACK_WEB_API = 'https://slack.com/api/';
-const OAUTH_TOKEN = process.env.USER_TOKEN;
+const OAUTH_TOKEN = process.env.SLACK_USER_TOKEN;
 
 function suggestionsService() {
   const _wordsFilePath = path.resolve(__dirname, '../../../api/bin/words_en.json');

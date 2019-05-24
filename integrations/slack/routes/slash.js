@@ -1,5 +1,7 @@
 const express = require('express');
 const rp = require('request-promise');
+const log4js = require('log4js');
+const logger = log4js.getLogger();
 
 const dataSvc = require('../../../api/services/data.service');
 

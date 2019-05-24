@@ -105,7 +105,7 @@ function handleDialogSubmission(payload, req, res, next) {
           const resp = sendMessage(
             responseUrl,
             "Your definition for " + state + " has been successfully added."
-          ).then(() => options.body);
+          );
           res.status(201).end();
           return resp;
         })
@@ -122,7 +122,7 @@ function handleDialogSubmission(payload, req, res, next) {
             const resp = sendMessage(
               responseUrl,
               "Your new entry " + state + " has been successfully added."
-            ).then(() => options.body);
+            );
             res.status(201).end();
             return resp;
           })
