@@ -1,0 +1,65 @@
+var createError = require('http-errors');
+var express = require('express');
+var path = require('path');
+var cookieParser = require('cookie-parser');
+var morgan = require('morgan');
+var log4js = require('log4js');
+
+const logLevel = process.env.NODE_ENV === 'development' ? 'debug' : 'warning';
+
+log4js.configure({
+  appenders: {
+    out: { type: 'stdout' },
+    everything: { type: 'file', filename: path.join(__dirname, '/public/run.log') }
+  },
+  categories: {
+    default: { appenders: [ 'everything', 'out' ], level: logLevel }
+  }
+});
+
+// General
+var indexRouter = require('./routes/index');
+var entriesRouter = require('./routes/entries');
+var definitionsRouter = require('./routes/definitions');
+
+// Slack
+var slashRouter = require('../integrations/slack/routes/slash');
+var interactionsRouter = require('../integrations/slack/routes/interactions');
+var channelRouter = require('../integrations/slack/routes/channel');
+
+var app = express();
+
+// view engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'jade');
+
+app.use(morgan('common'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.use('/', indexRouter);
+app.use('/entries', entriesRouter);
+app.use('/definitions', definitionsRouter);
+app.use('/slack/slash', slashRouter);
+app.use('/slack/interactions', interactionsRouter);
+app.use('/slack/channel', channelRouter);
+
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+  next(createError(404));
+});
+
+// error handler
+app.use(function(err, req, res, next) {
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+  // render the error page
+  res.status(err.status || 500);
+  res.render('error');
+});
+
+module.exports = app;

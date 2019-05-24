@@ -1,0 +1,38 @@
+{
+  "name": "ultilingo",
+  "version": "0.0.1",
+  "description": "",
+  "private": true,
+  "main": "api/index.js",
+  "scripts": {
+    "start": "node ./api/bin/www"
+  },
+  "contributors": [
+    {
+      "name": "Colton Moler",
+      "email": "coltonmoler@gmail.com",
+      "url": "https://github.com/cmoler"
+    },
+    {
+      "name": "Rick Jelte",
+      "email": "imjelte@gmail.com",
+      "url": "https://github.com/rjelte"
+    },
+    {
+      "name": "Josh Wang",
+      "email": "joshua.wang.h@gmail.com",
+      "url": "https://github.com/jwango"
+    }
+  ],
+  "dependencies": {
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "express": "~4.17.0",
+    "http-errors": "~1.6.3",
+    "jade": "~1.11.0",
+    "log4js": "^4.2.0",
+    "morgan": "~1.9.1",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.4"
+  }
+}
