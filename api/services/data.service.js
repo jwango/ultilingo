@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const matcherSvc = require('./matcher.service');
+const searchUtils = require('../helpers/search-utils');
 const log4js = require('log4js');
 const logger = log4js.getLogger();
 
@@ -107,8 +108,10 @@ function dataService() {
           definitionIds: [newDefinitionId]
         };
         // TODO: write custom binaryIndexOf for efficient placement within array
-        dict.entryIds.push(entryId);
-        dict.entryIds.sort();
+        const ndx = searchUtils.binaryIndexOf(dict.entryIds, entryId, true);
+        dict.entryIds.splice(ndx, 0, entryId);
+        // dict.entryIds.push(entryId);
+        // dict.entryIds.sort();
         return this._write(dict);
       });
   }

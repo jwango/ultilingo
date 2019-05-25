@@ -48,7 +48,7 @@ Searches the glossary for the term. If no similar entry is found, prompts user t
 - [x] Slack request verification (secure slack integration API from DDoS / malicious intent)
 - [ ] Test terms that have spaces in them
 - [ ] Improve matching algorithm
-- [ ] Improve search performance with binaryIndexOf
+- [x] Improve naive search performance with binaryIndexOf
 
 ## TODO (Backlog):
 - [ ] "Spaces" to localize entries and definitions

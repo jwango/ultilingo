@@ -1,9 +1,10 @@
+const searchUtils = require('../helpers/search-utils');
+
 function matcherService() {
 
   // returns the entryId for the given term
   const match = function(dict, term) {
-    // TODO: write efficent binaryIndexOf method when assuming the entryIds are sorted
-    const ndx = dict.entryIds.indexOf((term || "").toLowerCase());
+    const ndx = searchUtils.binaryIndexOf(dict.entryIds, (term || "").toLowerCase());
     if (ndx >= 0) { 
       return dict.entryIds[ndx];
     }
