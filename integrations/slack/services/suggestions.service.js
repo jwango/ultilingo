@@ -38,12 +38,18 @@ function suggestionsService() {
     return rp(options)
   };
 
-  function getAllSuggestions() {
-    return getAllChannels()
-    .then(function (channelResult) {
-      ids = channelResult.channels.map(({id}) => {
-        return id;
-      });
+  function getAllSuggestions(channelIds) {
+    let channelsPromise = Promise.resolve(channelIds);
+    if (!Array.isArray(channelIds)) {
+      channelsPromise = getAllChannels()
+        .then(function (channelResult) {
+          return channelResult.channels.map(({id}) => {
+            return id;
+          });
+        });
+    }
+    return channelsPromise
+    .then(function (ids) {
       let promises = [];
       ids.forEach(id => {
         promises.push(suggestionsSvc.makeSuggestionsForChannel(id));
@@ -106,10 +112,11 @@ function suggestionsService() {
     return _read()
       .then(function(dict) {
         dictionary = STARTING_DICTIONARY.concat(dict);
+        logger.debug(`checking channel ${id}`);
         // Get Channel History
         return getHistoryByChannelId(id)
           .then(function(response) {
-            let messages = response.messages;
+            let messages = response.messages || [];
             let allWords = [];
             messages = messages.reduce((filtered, messageObj) => {  
               if (!messageObj.subtype && !messageObj.bot_id) {

@@ -46,9 +46,11 @@ Searches the glossary for the term. If no similar entry is found, prompts user t
 - [ ] Deleting of entries (admins)
 - [ ] General API security
 - [x] Slack request verification (secure slack integration API from DDoS / malicious intent)
-- [ ] Test terms that have spaces in them
-- [ ] Improve matching algorithm
+- [x] Test terms that have spaces in them
+- [ ] Improve matching algorithm to provide suggestions
 - [x] Improve naive search performance with binaryIndexOf
+- [ ] Slack limit number of definitions shown
+- [x] Limit "contribute" to current channel-like conversation
 
 ## TODO (Backlog):
 - [ ] "Spaces" to localize entries and definitions

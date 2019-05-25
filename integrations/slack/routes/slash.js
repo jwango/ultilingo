@@ -14,9 +14,11 @@ const MAX_SUGGESTIONS = 3;
 router.post('/ultilingo', function(req, res, next) {
   const wordToDefine = req.body['text'];
   const responseUrl = req.body['response_url'];
+  const channelId = req.body['channel_id'];
 
   if (wordToDefine === 'contribute') {
-    suggestionsSvc.getAllSuggestions()
+    logger.debug(JSON.stringify(req.body, null, 2));
+    suggestionsSvc.getAllSuggestions([channelId])
       .then(function (allSuggestions) {
         let promises = [];
         let finalResults = [];
@@ -47,7 +49,7 @@ router.post('/ultilingo', function(req, res, next) {
       .catch(next);
     res.json({
       "response_type": "ephemeral",
-      "text": "Checking for words to contribute to..."
+      "text": "Checking for words to contribute to in this channel..."
     });
   } else {
     dataSvc.getEntry(wordToDefine)
