@@ -32,7 +32,6 @@ var channelRouter = require('../integrations/slack/routes/channel');
 
 function verify(req, res, buf, encoding) {
   const route = req.path.split('/');
-  logger.debug(route);
   if (route.length > 0 && route[1] === 'slack') {
     verificationSvc.bodyParserVerify(req, res, buf, encoding);
   }

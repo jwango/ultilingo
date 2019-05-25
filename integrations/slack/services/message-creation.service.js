@@ -1,4 +1,5 @@
 const actions = require('../helpers/actions');
+const matcherSvc = require('../../../api/services/matcher.service');
 
 function messageCreationService() {
 
@@ -32,23 +33,22 @@ function messageCreationService() {
         return text.concat(button);
     }
 
-    const createDefinitionMessage = function(entry) {
+    const createDefinitionMessage = function(entry, startNdx) {
         let response = 
         [{
             "type": "section",
             "text": {
                 "type": "plain_text",
-                "text": "Found the follow definitions for " + entry.name +":",
+                "text": `Found the follow definitions (${startNdx + 1}-${startNdx + entry.definitions.length} of ${entry.definitionIds.length}) for ${entry.name}:`,
                 "emoji": true
             }
         }];
         for(let i = 0; i < entry.definitions.length; i++){
-            const entryDefintion = 
-            [{
+            const entryDefintion = {
                 "type": "section",
                 "text": {
                     "type": "plain_text",
-                    "text": entry.definitions[i].value + " \n Votes: " + entry.definitions[i].votes,
+                    "text": `${startNdx + i + 1}. ${entry.definitions[i].value} \n Votes: ${entry.definitions[i].votes}`,
                     "emoji": true
                 },
                 "accessory": {
@@ -59,30 +59,45 @@ function messageCreationService() {
                         "text": "Good Definition",
                         "emoji": true
                     },
-                    "value": entry.definitions[i].id.toString()
+                    "value": JSON.stringify({
+                      entryId: matcherSvc.mapToEntryId(entry.name),
+                      definitionId: entry.definitions[i].id
+                    })
                 }
-            }];
+            };
 
-            response = response.concat(entryDefintion);
+            response.push(entryDefintion);
         }
           
-        const addDefinition =
-        [{
-            "type": "actions",
-            "elements": [
-                {
-                    "action_id": actions.ADD_DEFINITION_BUTTON,
-                    "type": "button",
-                    "text": {
-                        "type": "plain_text",
-                        "text": "Add Definition",
-                        "emoji": true
-                    },
-                    "value": entry.name
-                }
-            ]
-        }];
-        response = response.concat(addDefinition);
+        const moreButtons = {
+          "type": "actions",
+          "elements": [
+            {
+              "action_id": actions.ADD_DEFINITION_BUTTON,
+              "type": "button",
+              "text": {
+                  "type": "plain_text",
+                  "text": "Add Definition",
+                  "emoji": true
+              },
+              "value": entry.name
+            },
+            {
+              "action_id": actions.SHOW_MORE_DEFINITIONS_BUTTON,
+              "type": "button",
+              "text": {
+                  "type": "plain_text",
+                  "text": "Show More",
+                  "emoji": true
+              },
+              "value": JSON.stringify({
+                entryId: entry.name,
+                startNdx: startNdx + entry.definitions.length
+              })
+            }
+          ]
+        };
+        response.push(moreButtons);
         return response;
     }
 

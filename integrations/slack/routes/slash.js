@@ -52,7 +52,7 @@ router.post('/ultilingo', function(req, res, next) {
       "text": "Checking for words to contribute to in this channel..."
     });
   } else {
-    dataSvc.getEntry(wordToDefine)
+    dataSvc.getEntry(wordToDefine, 0, 3)
     .then(function (entry) {
       if(!entry){
           // return "dont have a this entry would you like to add it"
@@ -63,7 +63,7 @@ router.post('/ultilingo', function(req, res, next) {
       }
       else {
           // return all of the defintions
-          const blocks = messageCreationSvc.createDefinitionMessage(entry);
+          const blocks = messageCreationSvc.createDefinitionMessage(entry, 0);
           res.json({
               "blocks": blocks
           });

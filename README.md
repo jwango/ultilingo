@@ -49,8 +49,11 @@ Searches the glossary for the term. If no similar entry is found, prompts user t
 - [x] Test terms that have spaces in them
 - [ ] Improve matching algorithm to provide suggestions
 - [x] Improve naive search performance with binaryIndexOf
-- [ ] Slack limit number of definitions shown
+- [x] Slack limit number of definitions shown
 - [x] Limit "contribute" to current channel-like conversation
+- [ ] Slack clean up immediate responses
+- [ ] Slack investigate warning icon next to "Show More" and "Good Definition"
+- [ ] Slack add failure responses
 
 ## TODO (Backlog):
 - [ ] "Spaces" to localize entries and definitions

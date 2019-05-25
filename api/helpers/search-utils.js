@@ -1,4 +1,15 @@
-const binaryIndexOf = function(arr, val, giveNearest, start, end) {
+const binaryIndexOf = function(arr, val, giveNearest, start, end, compareFn) {
+  let compare = compareFn;
+  if (!compareFn) {
+    compare = function(a, b) {
+      if (a < b) {
+        return -1;
+      } else if (a > b) { 
+        return 1;
+      }
+      return 0;
+    };
+  }
   let L = 0;
   let R = arr.length - 1;
   if (!Array.isArray(arr)) {
@@ -15,9 +26,9 @@ const binaryIndexOf = function(arr, val, giveNearest, start, end) {
   let res = -1;
   while (L <= R && res < 0) {
     M = L + Math.floor((R - L) / 2);
-    if (val < arr[M]) {
+    if (compare(val, arr[M]) < 0) {
       R = M - 1;
-    } else if (val > arr[M]) {
+    } else if (compare(val, arr[M]) > 0) {
       L = M + 1;
       M = L;
     } else {

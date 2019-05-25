@@ -8,6 +8,7 @@ const dataSvc = require('../../../api/services/data.service');
 const actions = require('../helpers/actions');
 const formElements = require('../helpers/form-elements');
 const dialogCreationSvc = require('../services/dialog-creation.service');
+const messageCreationSvc = require('../services/message-creation.service');
 
 const SLACK_WEB_API = "https://slack.com/api/";
 const BOT_TOKEN = process.env.SLACK_BOT_TOKEN;
@@ -29,14 +30,14 @@ router.post('/', function(req, res, next) {
   }
 });
 
-function sendMessage(responseUrl, messageStr, responseType) {
+function sendBody(responseUrl, body, replaceOriginal, responseType) {
   const options = {
     method: 'POST',
     uri: responseUrl,
-    body: {
-        "response_type": responseType || "ephemeral",
-        "text": messageStr
-    },
+    body: Object.assign(body, {
+      "replace_original": !!replaceOriginal,
+      "response_type": responseType || "ephemeral",
+    }),
     json: true
   };
   return rp(options)
@@ -46,6 +47,10 @@ function sendMessage(responseUrl, messageStr, responseType) {
       }
       return body;
     });
+}
+
+function sendMessage(responseUrl, messageStr, replaceOriginal, responseType) {
+  return sendBody(responseUrl, { "text": messageStr }, replaceOriginal, responseType);
 }
 
 function handleBlockActions(payload, req, res, next) {
@@ -60,33 +65,37 @@ function handleBlockActions(payload, req, res, next) {
 
   switch(actionId){
     case actions.UP_VOTE_BUTTON:
-        onUpvote(payload, actionValue)
-          .then(function(request) {
-            res.status(200).end();
-          });
-    break;
-    case actions.ADD_DEFINITION_BUTTON:
-      onAddDefinition(triggerId, actionValue)
-        .then(function(request) {
-          res.status(200).end();
-          // res.status(200).json(request); // for debugging
-        });
-    break;
-    case actions.ADD_ENTRY_BUTTON:
-      onAddEntry(triggerId, actionValue)
-        .then(function(request) {
-          res.status(200).end();
-          // res.status(200).json(request); // for debugging
-        })
+      onUpvote(responseUrl, actionValue)
         .catch(function(err) {
           logger.error(err);
-          sendMessage(responseUrl, err.message);
-          res.status(400).end();
         });
-    break;
+      res.status(200).end();
+      break;
+    case actions.ADD_DEFINITION_BUTTON:
+      onAddDefinition(triggerId, actionValue)
+        .catch(function(err) {
+          logger.error(err);
+        });
+      res.status(200).end();
+      break;
+    case actions.ADD_ENTRY_BUTTON:
+      onAddEntry(triggerId, actionValue)
+        .catch(function(err) {
+          logger.error(err);
+          sendMessage(responseUrl, err.message, true);
+        });
+      res.status(200).end();
+      break;
+    case actions.SHOW_MORE_DEFINITIONS_BUTTON:
+      onShowMoreDefinitions(triggerId, responseUrl, actionValue)
+        .catch(function(err) {
+          logger.error(err);
+        });
+      res.status(200).end();
+      break;
     default:
       res.status(404).end();
-    break;
+      break;
   }
 }
 
@@ -115,42 +124,35 @@ function handleDialogSubmission(payload, req, res, next) {
         });
       break;
     case actions.ADD_ENTRY_DIALOG:
-        definitionValue = submission[formElements.DEFINITION_VALUE];
-        logger.debug('add entry for ' + state + ': ' + definitionValue);
-        dataSvc.addEntry(state, definitionValue)
-          .then(function() {
-            const resp = sendMessage(
-              responseUrl,
-              "Your new entry " + state + " has been successfully added."
-            );
-            res.status(201).end();
-            return resp;
-          })
-          .catch(function(err) {
-            logger.error(err);
-            res.status(500).end();
-          });
-        break;
+      definitionValue = submission[formElements.DEFINITION_VALUE];
+      logger.debug('add entry for ' + state + ': ' + definitionValue);
+      dataSvc.addEntry(state, definitionValue)
+        .then(function() {
+          const resp = sendMessage(
+            responseUrl,
+            "Your new entry " + state + " has been successfully added."
+          );
+          res.status(201).end();
+          return resp;
+        })
+        .catch(function(err) {
+          logger.error(err);
+          res.status(500).end();
+        });
+      break;
     default:
       res.status(404).end();
       break;
   }
 }
 
-function onUpvote(payload, actionValue) {
-    const responseUrl = payload["response_url"];
+function onUpvote(responseUrl, actionValue) {
+  const actionValueParsed = JSON.parse(actionValue);
 
-    dataSvc.addVote(actionValue)
-        .then(function(request) {
-          return sendMessage(responseUrl, "Vote count has been updated");
-        })
-        .then(function() {
-            res.status(201).end();
-        })
-        .catch(function(err) {
-            logger.error(err);
-            res.status(500).end();
-        });;
+  dataSvc.addVote(actionValueParsed.entryId, actionValueParsed.definitionId)
+    .then(function() {
+      return sendMessage(responseUrl, "Thanks for voting and improving our community!");
+    });
 }
 
 function onAddDefinition(triggerId, entryName) {
@@ -246,6 +248,21 @@ function onAddEntry(triggerId, entryName) {
           // maybe send a message back to slack from here
         });
     });
+}
+
+function onShowMoreDefinitions(triggerId, responseUrl, actionValue) {
+  const actionValueParsed = JSON.parse(actionValue);
+  dataSvc.getEntry(actionValueParsed.entryId, actionValueParsed.startNdx, 3)
+    .then(function (entry) {
+      if(!entry || entry.definitions.length === 0){
+        return sendMessage(responseUrl, `Cannot find anymore definitions for ${entry.name}.`);
+      }
+      else {
+        // return all of the defintions
+        const blocks = messageCreationSvc.createDefinitionMessage(entry, actionValueParsed.startNdx);
+        return sendBody(responseUrl, { "blocks": blocks }, true);
+      }
+    })
 }
 
 module.exports = router;

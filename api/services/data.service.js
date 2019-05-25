@@ -59,7 +59,9 @@ function dataService() {
   }
 
   // gets entry with a fuzzy search using matcher
-  const getEntry = function(entryName) {
+  const getEntry = function(entryName, definitionsStartIndex, definitionsLimit) {
+    const start = definitionsStartIndex || 0;
+    const limit = definitionsLimit || undefined;
     return _read()
       .then(function(dict) {
         const entryId = matcherSvc.match(dict, entryName);
@@ -68,15 +70,14 @@ function dataService() {
           return null;
         }
         entry.definitions = [];
-        entry.definitionIds.forEach((definitionId) => {
-          def = dict['definitions'][definitionId];
-          if (def) {
-            entry.definitions.push(def);
-          }
-        });
-        entry.definitions.sort((a, b) => {
-          return -1 * (a.votes - b.votes);
-        });
+        entry.definitionIds
+          .slice(start, start + limit)
+          .forEach((definitionId) => {
+            def = dict['definitions'][definitionId];
+            if (def) {
+              entry.definitions.push(def);
+            }
+          });
         return entry;
       });
   }
@@ -107,11 +108,8 @@ function dataService() {
           dateUpdated: today.toISOString(),
           definitionIds: [newDefinitionId]
         };
-        // TODO: write custom binaryIndexOf for efficient placement within array
-        const ndx = searchUtils.binaryIndexOf(dict.entryIds, entryId, true);
-        dict.entryIds.splice(ndx, 0, entryId);
-        // dict.entryIds.push(entryId);
-        // dict.entryIds.sort();
+        const insertNdx = searchUtils.binaryIndexOf(dict.entryIds, entryId, true);
+        dict.entryIds.splice(insertNdx, 0, entryId);
         return this._write(dict);
       });
   }
@@ -155,7 +153,7 @@ function dataService() {
       });
   }
 
-  const addVote = function(definitionId) {
+  const addVote = function(entryId, definitionId) {
     return _read()
       .then((dict) => {
         const today = new Date();
@@ -164,8 +162,32 @@ function dataService() {
         }
         dict.definitions[definitionId].votes += 1;
         dict.definitions[definitionId].dateUpdated = today.toISOString();
+        const entry = dict.entries[entryId];
+        if (entry) {
+          // optimized bubble sort the definition by votes
+          let swapped = true;
+          while (swapped) {
+            swapped = false;
+            const currNdx = entry.definitionIds.indexOf(definitionId);
+            
+            // check to the left and swap up if it has more votes
+            if (currNdx > 0) {
+              const leftDefinitionId = entry.definitionIds[currNdx - 1];
+              if (dict.definitions[leftDefinitionId].votes <= dict.definitions[definitionId].votes) {
+                _swap(entry.definitionIds, currNdx - 1, currNdx);
+                swapped = true;
+              }
+            }
+          }
+        }
         return this._write(dict);
       });
+  }
+
+  const _swap = function(arr, i, j) {
+    const temp = arr[i];
+    arr[i] = arr[j];
+    arr[j] = temp;
   }
 
   // Public API
