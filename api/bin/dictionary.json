@@ -6,7 +6,8 @@
       "dateUpdated": "2019-05-23T22:23:07.302Z",
       "definitionIds": [
         1
-      ]
+      ],
+      "flaggedDefinitionIds": []
     },
     "dvpe": {
       "name": "DVPE",
@@ -15,7 +16,8 @@
       "definitionIds": [
         2,
         3
-      ]
+      ],
+      "flaggedDefinitionIds": []
     }
   },
   "entryIds": [
@@ -28,6 +30,12 @@
       "dateAdded": "2019-05-23T22:23:07.302Z",
       "dateUpdated": "2019-05-23T22:23:07.302Z",
       "votes": 0,
+      "userInfo": {
+        "ext": "slack",
+        "id": null,
+        "name": ""
+      },
+      "flaggedCount": 0,
       "value": "(NBA) A contract to help teams retain NBA players who qualify for the Designated Veteran Player Extension (DVPE)."
     },
     "2": {
@@ -35,6 +43,12 @@
       "dateAdded": "2019-05-23T22:24:48.634Z",
       "dateUpdated": "2019-05-23T22:24:48.634Z",
       "votes": 0,
+      "userInfo": {
+        "ext": "slack",
+        "id": null,
+        "name": ""
+      },
+      "flaggedCount": 0,
       "value": "(NBA) Designated Veteran Player Extension. Playerse must have seven or eight years of service in the league on their drafted teams and prove themselves distinguished."
     },
     "3": {
@@ -42,6 +56,11 @@
       "dateAdded": "2019-05-23T22:32:19.067Z",
       "dateUpdated": "2019-05-23T22:32:19.067Z",
       "votes": 0,
+      "userInfo": {
+        "ext": "slack",
+        "id": null
+      },
+      "flaggedCount": 0,
       "value": "(NBA) A threshold for the supermax contract, meant to help teams retain stars by outbidding competitors early."
     }
   },

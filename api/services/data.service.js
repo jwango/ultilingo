@@ -5,6 +5,8 @@ const searchUtils = require('../helpers/search-utils');
 const log4js = require('log4js');
 const logger = log4js.getLogger();
 
+const FLAG_THRESHOLD = +(process.env.FLAG_THRESHOLD);
+
 function dataService() {
   // Private
   const _dictFilePath = path.resolve(__dirname, '../bin/dictionary.json');
@@ -82,7 +84,7 @@ function dataService() {
       });
   }
 
-  const addEntry = function(name, definitionValue) {
+  const addEntry = function(name, definitionValue, userInfo) {
     return _read()
       .then((dict) => {
         const entryId = matcherSvc.mapToEntryId(name);
@@ -100,13 +102,16 @@ function dataService() {
           dateAdded: today.toISOString(),
           dateUpdated: today.toISOString(),
           votes: 0,
+          userInfo: userInfo || {},
+          flaggedCount: 0,
           value: definitionValue
         };
         dict.entries[entryId] = {
           name: name,
           dateAdded: today.toISOString(),
           dateUpdated: today.toISOString(),
-          definitionIds: [newDefinitionId]
+          definitionIds: [newDefinitionId],
+          flaggedDefinitionIds: []
         };
         const insertNdx = searchUtils.binaryIndexOf(dict.entryIds, entryId, true);
         dict.entryIds.splice(insertNdx, 0, entryId);
@@ -129,10 +134,9 @@ function dataService() {
       });
   }
 
-  const addDefinition = function(value, entryName) {
+  const addDefinition = function(value, entryName, userInfo) {
     return _read()
       .then((dict) => {
-        const entryId = matcherSvc.mapToEntryId(entryName);
         const today = new Date();
         const newDefinitionId = dict.latestDefinitionId + 1;
         dict.latestDefinitionId = newDefinitionId;
@@ -142,12 +146,33 @@ function dataService() {
           dateAdded: today.toISOString(),
           dateUpdated: today.toISOString(),
           votes: 0,
+          userInfo: userInfo || {},
+          flaggedCount: 0,
           value: value
         };
 
+        const entryId = matcherSvc.mapToEntryId(entryName);
         if (entryId && dict.entries[entryId]) {
           dict.entries[entryId].definitionIds.push(newDefinitionId);
           dict.entries[entryId].dateUpdated = today.toISOString();
+        }
+        return this._write(dict);
+      });
+  }
+
+  const flagDefinition = function(entryId, definitionId) {
+    return _read()
+      .then((dict) => {
+        const entry = dict.entries[entryId];
+        const today = new Date();
+        if (!dict.definitions[definitionId] || !entry) {
+          throw new Error('Definition could not be found for the given entry.');
+        }
+        dict.definitions[definitionId].dateUpdated = today.toISOString();
+        dict.definitions[definitionId].flaggedCount += 1;
+        if (dict.definitions[definitionId].flaggedCount >= FLAG_THRESHOLD) {
+          entry.definitionIds = entry.definitionIds.filter((id) => id !== definitionId);
+          entry.flaggedDefinitionIds.push(definitionId);
         }
         return this._write(dict);
       });
@@ -202,6 +227,7 @@ function dataService() {
     getDefinitionIds: getDefinitionIds,
     getDefinition: getDefinition,
     addDefinition: addDefinition,
+    flagDefinition: flagDefinition,
     addVote: addVote
   };
 }

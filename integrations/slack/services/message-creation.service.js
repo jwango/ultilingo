@@ -34,39 +34,62 @@ function messageCreationService() {
     }
 
     const createDefinitionMessage = function(entry, startNdx) {
+      const total = entry.definitionIds.length;
+      const maxRange = Math.max(startNdx + entry.definitions.length, total);
+      const minRange = Math.min(startNdx + 1, maxRange);
         let response = 
         [{
             "type": "section",
             "text": {
                 "type": "plain_text",
-                "text": `Found the follow definitions (${startNdx + 1}-${startNdx + entry.definitions.length} of ${entry.definitionIds.length}) for ${entry.name}:`,
+                "text": `Found the follow definitions (${minRange}-${maxRange} of ${total}) for ${entry.name}:`,
                 "emoji": true
             }
         }];
         for(let i = 0; i < entry.definitions.length; i++){
-            const entryDefintion = {
-                "type": "section",
-                "text": {
-                    "type": "plain_text",
-                    "text": `${startNdx + i + 1}. ${entry.definitions[i].value} \n Votes: ${entry.definitions[i].votes}`,
-                    "emoji": true
+          const entryDefintion = [
+            {
+              "type": "section",
+              "text": {
+                "type": "plain_text",
+                "text": `${startNdx + i + 1}. ${entry.definitions[i].value} \n Votes: ${entry.definitions[i].votes}`,
+                "emoji": true
+              }
+            },
+            {
+              "type": "actions",
+              "elements": [
+                {
+                  "action_id": actions.UP_VOTE_BUTTON + i,
+                  "type": "button",
+                  "text": {
+                      "type": "plain_text",
+                      "text": "Good 👍",
+                      "emoji": true
+                  },
+                  "value": JSON.stringify({
+                    entryId: matcherSvc.mapToEntryId(entry.name),
+                    definitionId: entry.definitions[i].id
+                  })
                 },
-                "accessory": {
-                    "action_id": actions.UP_VOTE_BUTTON + i,
-                    "type": "button",
-                    "text": {
-                        "type": "plain_text",
-                        "text": "Good Definition",
-                        "emoji": true
-                    },
-                    "value": JSON.stringify({
-                      entryId: matcherSvc.mapToEntryId(entry.name),
-                      definitionId: entry.definitions[i].id
-                    })
-                }
-            };
+                {
+                  "action_id": actions.FLAG_DEFINITION_BUTTON + i,
+                  "type": "button",
+                  "text": {
+                      "type": "plain_text",
+                      "text": "Flag ❗",
+                      "emoji": true
+                  },
+                  "value": JSON.stringify({
+                    entryId: matcherSvc.mapToEntryId(entry.name),
+                    definitionId: entry.definitions[i].id
+                  })
+                },
+              ]
+            }
+          ];
 
-            response.push(entryDefintion);
+          response = response.concat(entryDefintion);
         }
           
         const moreButtons = {

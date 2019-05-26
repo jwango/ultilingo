@@ -12,7 +12,7 @@ Even better: UltiLingo learns with you. It recognizes terms that your company se
 ## Slack
 `/ultilingo contribute`
 
-Searches all channel-like conversations and suggests terms to define.
+Searches the current conversation or channel and suggests terms to define.
 
 `/ultilingo <term>`
 
@@ -41,7 +41,7 @@ Searches the glossary for the term. If no similar entry is found, prompts user t
 
 ## TODO (MVP):
 - [ ] Persistent DB integration with MongoDB (make sure to follow all security protocols!)
-- [ ] Flagging of definitions (all)
+- [x] Flagging of definitions (all)
 - [ ] Deleting of definitions (admins)
 - [ ] Deleting of entries (admins)
 - [ ] General API security

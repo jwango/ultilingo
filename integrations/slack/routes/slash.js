@@ -17,7 +17,6 @@ router.post('/ultilingo', function(req, res, next) {
   const channelId = req.body['channel_id'];
 
   if (wordToDefine === 'contribute') {
-    logger.debug(JSON.stringify(req.body, null, 2));
     suggestionsSvc.getAllSuggestions([channelId])
       .then(function (allSuggestions) {
         let promises = [];
@@ -52,24 +51,31 @@ router.post('/ultilingo', function(req, res, next) {
       "text": "Checking for words to contribute to in this channel..."
     });
   } else {
-    dataSvc.getEntry(wordToDefine, 0, 3)
-    .then(function (entry) {
-      if(!entry){
-          // return "dont have a this entry would you like to add it"
-          const blocks = messageCreationSvc.createNotFoundMessage(wordToDefine);
-          res.json({
-              "blocks": blocks
-          });
-      }
-      else {
-          // return all of the defintions
-          const blocks = messageCreationSvc.createDefinitionMessage(entry, 0);
-          res.json({
-              "blocks": blocks
-          });
-      }
-    })
-    .catch(next);
+    if (!wordToDefine) {
+      res.json({
+        "response_type": "ephemeral",
+        "text": "Sorry, I can't look up that word."
+      });
+    } else {
+      dataSvc.getEntry(wordToDefine, 0, 3)
+        .then(function (entry) {
+          if(!entry){
+              // return "dont have a this entry would you like to add it"
+              const blocks = messageCreationSvc.createNotFoundMessage(wordToDefine);
+              res.json({
+                  "blocks": blocks
+              });
+          }
+          else {
+              // return all of the defintions
+              const blocks = messageCreationSvc.createDefinitionMessage(entry, 0);
+              res.json({
+                  "blocks": blocks
+              });
+          }
+        })
+        .catch(next);
+    }
   }
 });
 

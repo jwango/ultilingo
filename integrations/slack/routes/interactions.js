@@ -4,6 +4,7 @@ const log4js = require('log4js');
 const logger = log4js.getLogger();
 
 const dataSvc = require('../../../api/services/data.service');
+const extensions = require('../../../api/helpers/extensions');
 
 const actions = require('../helpers/actions');
 const formElements = require('../helpers/form-elements');
@@ -59,8 +60,10 @@ function handleBlockActions(payload, req, res, next) {
   // Do we need to loop through all the actions and handle each?
   const actionValue = payload['actions'][0]['value'];
   let actionId = payload['actions'][0]['action_id'];
-  if(actionId.includes('UpVoteButton')) {
-    actionId = 'UpVoteButton';
+  if (actionId.includes(actions.UP_VOTE_BUTTON)) {
+    actionId = actions.UP_VOTE_BUTTON;
+  } else if (actionId.includes(actions.FLAG_DEFINITION_BUTTON)) {
+    actionId = actions.FLAG_DEFINITION_BUTTON;
   }
 
   switch(actionId){
@@ -86,6 +89,13 @@ function handleBlockActions(payload, req, res, next) {
         });
       res.status(200).end();
       break;
+    case actions.FLAG_DEFINITION_BUTTON:
+      onFlagDefinition(responseUrl, actionValue)
+        .catch(function(err) {
+          logger.error(err);
+        });
+      res.status(200).end();
+      break;
     case actions.SHOW_MORE_DEFINITIONS_BUTTON:
       onShowMoreDefinitions(triggerId, responseUrl, actionValue)
         .catch(function(err) {
@@ -104,12 +114,13 @@ function handleDialogSubmission(payload, req, res, next) {
   const submission = payload["submission"];
   const state = payload["state"];
   const responseUrl = payload["response_url"];
+  const user = payload["user"];
 
   let definitionValue;
   switch (callbackId) {
     case actions.ADD_DEFINITION_DIALOG:
       definitionValue = submission[formElements.DEFINITION_VALUE];
-      dataSvc.addDefinition(definitionValue, state)
+      dataSvc.addDefinition(definitionValue, state,  { ext: extensions.SLACK, id: user.id, name: user.username || user.name })
         .then(function() {
           const resp = sendMessage(
             responseUrl,
@@ -125,8 +136,7 @@ function handleDialogSubmission(payload, req, res, next) {
       break;
     case actions.ADD_ENTRY_DIALOG:
       definitionValue = submission[formElements.DEFINITION_VALUE];
-      logger.debug('add entry for ' + state + ': ' + definitionValue);
-      dataSvc.addEntry(state, definitionValue)
+      dataSvc.addEntry(state, definitionValue, { ext: extensions.SLACK, id: user.id, name: user.username || user.name })
         .then(function() {
           const resp = sendMessage(
             responseUrl,
@@ -186,7 +196,6 @@ function onAddDefinition(triggerId, entryName) {
     body: request,
     json: true
   };
-  logger.debug(JSON.stringify(options, null, 2));
   return rp(options)
     .then(function(body) {
       if (!body["ok"]) {
@@ -247,6 +256,15 @@ function onAddEntry(triggerId, entryName) {
           logger.error(err);
           // maybe send a message back to slack from here
         });
+    });
+}
+
+function onFlagDefinition(responseUrl, actionValue) {
+  const actionValueParsed = JSON.parse(actionValue);
+
+  dataSvc.flagDefinition(actionValueParsed.entryId, actionValueParsed.definitionId)
+    .then(function() {
+      return sendMessage(responseUrl, "Definition has been flagged. Thanks for improving our community!");
     });
 }
 
