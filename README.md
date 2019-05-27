@@ -44,7 +44,7 @@ Searches the glossary for the term. If no similar entry is found, prompts user t
 - [x] Flagging of definitions (all)
 - [ ] Deleting of definitions (admins)
 - [ ] Deleting of entries (admins)
-- [ ] General API security
+- [x] General API security (secured via on / off flag)
 - [x] Slack request verification (secure slack integration API from DDoS / malicious intent)
 - [x] Test terms that have spaces in them
 - [ ] Improve matching algorithm to provide suggestions

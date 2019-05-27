@@ -73,4 +73,33 @@ router.post('/:entryId/definitions', function(req, res, next) {
   }
 });
 
+router.get('/:entryId/definitions/:definitionId/flags', function(req, res, next) {
+  const entryId = req.params['entryId'];
+  const definitionId = req.params['definitionId'];
+  const p1 = dataSvc.getEntry(entryId, 0, 0);
+  const p2 = dataSvc.getDefinition(definitionId);
+
+  Promise.all([p1, p2])
+    .then(function([entry, definition]) {
+      if (entry && definition && (entry.definitionIds.concat(entry.flaggedDefinitionIds).includes(definition.id))) {
+        res.json({
+          "flagCount": definition.flaggedCount
+        });
+      } else {
+        res.status(404).send('Could not find the definition for the given entry.');
+      }
+    })
+    .catch(next);
+});
+
+router.post('/:entryId/definitions/:definitionId/flags', function(req, res, next) {
+  const entryId = req.params['entryId'];
+  const definitionId = req.params['definitionId'];
+  dataSvc.flagDefinition(entryId, definitionId)
+    .then(function() {
+      res.status(200).end();
+    })
+    .catch(next);
+});
+
 module.exports = router;

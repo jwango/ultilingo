@@ -21,7 +21,6 @@ log4js.configure({
 const logger = log4js.getLogger();
 
 // General
-var indexRouter = require('./routes/index');
 var entriesRouter = require('./routes/entries');
 var definitionsRouter = require('./routes/definitions');
 
@@ -54,9 +53,10 @@ app.use(express.urlencoded({
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
-app.use('/entries', entriesRouter);
-app.use('/definitions', definitionsRouter);
+if (process.env.ENABLE_API == 'true') {
+  app.use('/entries', entriesRouter);
+  app.use('/definitions', definitionsRouter); 
+}
 app.use('/slack/slash', slashRouter);
 app.use('/slack/interactions', interactionsRouter);
 app.use('/slack/channel', channelRouter);

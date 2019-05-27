@@ -171,8 +171,8 @@ function dataService() {
         dict.definitions[definitionId].dateUpdated = today.toISOString();
         dict.definitions[definitionId].flaggedCount += 1;
         if (dict.definitions[definitionId].flaggedCount >= FLAG_THRESHOLD) {
-          entry.definitionIds = entry.definitionIds.filter((id) => id !== definitionId);
-          entry.flaggedDefinitionIds.push(definitionId);
+          entry.definitionIds = entry.definitionIds.filter((id) => +id !== +definitionId);
+          entry.flaggedDefinitionIds.push(+definitionId);
         }
         return this._write(dict);
       });
