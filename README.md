@@ -12,6 +12,8 @@ Even better: UltiLingo learns with you. It recognizes terms that your company se
 ## API
 
 ### Slack
+Setup your app using these [instructions](integrations/slack/README.md) in the slack integrations folder.
+
 `/ultilingo contribute`
 
 Searches the current conversation or channel and suggests terms to define.
