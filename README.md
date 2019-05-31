@@ -9,7 +9,9 @@ Even better: UltiLingo learns with you. It recognizes terms that your company se
 
 # How does it work?
 
-## Slack
+## API
+
+### Slack
 `/ultilingo contribute`
 
 Searches the current conversation or channel and suggests terms to define.
@@ -18,7 +20,7 @@ Searches the current conversation or channel and suggests terms to define.
 
 Searches the glossary for the term. If no similar entry is found, prompts user to add a definition for the entry.
 
-## General API
+### General API
 `[ GET]  /entries`
 
 `[POST]  /entries`
@@ -36,6 +38,23 @@ Searches the glossary for the term. If no similar entry is found, prompts user t
 `[ GET]  /definitions/:definitionId`
 
 `[POST]  /definitions/:definitionId/votes`
+
+## Running
+
+### Locally
+0. This is a node project, so you will need to install [NodeJs](https://nodejs.org/en/).
+1. Install dependencies with `npm install`.
+2. Add a `.env` file in the root of the project for environment variables:
+    - `SLACK_BOT_TOKEN`=`"<Slack Bot Token>"`
+    - `SLACK_USER_TOKEN`=`"<Slack User Token>"`
+    - `SLACK_SECRET`=`"<Slack Client Secret>"`
+    - `LOG_LEVEL`=`"WARN"`
+    - `FLAG_THRESHOLD`=`"1"`
+    - `ENABLE_API`=`"true" // set this to true for debugging the general API`
+3. Run the service with `npm start`. It should now deploy on `http://localhost:3000`.
+
+### Deployed
+Same deal as running locally, except on your favorite hosting solution. Whatever your provider, be sure to add the requisite environment variables.
 
 # TODO
 
