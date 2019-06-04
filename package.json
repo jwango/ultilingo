@@ -5,8 +5,10 @@
   "private": true,
   "main": "api/index.js",
   "scripts": {
-    "start": "node ./api/bin/www"
-  },
+    "start": "node ./api/bin/www",
+    "store-setup": "node ./store/mongo-setup.js",
+    "store-teardown": "node ./store/mongo-teardown.js"
+},
   "contributors": [
     {
       "name": "Colton Moler",
@@ -32,6 +34,7 @@
     "http-errors": "~1.6.3",
     "jade": "~1.11.0",
     "log4js": "^4.2.0",
+    "mongodb": "^3.2.6",
     "morgan": "~1.9.1",
     "request": "^2.88.0",
     "request-promise": "^4.2.4"

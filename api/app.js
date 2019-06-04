@@ -22,7 +22,6 @@ const logger = log4js.getLogger();
 
 // General
 var entriesRouter = require('./routes/entries');
-var definitionsRouter = require('./routes/definitions');
 
 // Slack
 var slashRouter = require('../integrations/slack/routes/slash');
@@ -55,7 +54,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 if (process.env.ENABLE_API == 'true') {
   app.use('/entries', entriesRouter);
-  app.use('/definitions', definitionsRouter); 
 }
 app.use('/slack/slash', slashRouter);
 app.use('/slack/interactions', interactionsRouter);

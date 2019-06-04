@@ -13,6 +13,7 @@ const messageCreationSvc = require('../services/message-creation.service');
 
 const SLACK_WEB_API = "https://slack.com/api/";
 const BOT_TOKEN = process.env.SLACK_BOT_TOKEN;
+const FLAG_THRESHOLD = +(process.env.FLAG_THRESHOLD);
 
 const router = express.Router();
 
@@ -210,7 +211,7 @@ function onAddDefinition(triggerId, entryName) {
 }
 
 function onAddEntry(triggerId, entryName) {
-  return dataSvc.getEntry(entryName)
+  return dataSvc.getEntry(entryName, FLAG_THRESHOLD)
     .then(function(entry) {
       if (entry) {
         throw Error('Entry already exists.');
@@ -270,10 +271,10 @@ function onFlagDefinition(responseUrl, actionValue) {
 
 function onShowMoreDefinitions(triggerId, responseUrl, actionValue) {
   const actionValueParsed = JSON.parse(actionValue);
-  dataSvc.getEntry(actionValueParsed.entryId, actionValueParsed.startNdx, 3)
+  dataSvc.getEntry(actionValueParsed.entryId, FLAG_THRESHOLD, actionValueParsed.startNdx, 3)
     .then(function (entry) {
-      if(!entry || entry.definitions.length === 0){
-        return sendMessage(responseUrl, `Cannot find anymore definitions for ${entry.name}.`);
+      if (!entry || entry.definitions.length === 0){
+        return sendMessage(responseUrl, `Cannot find anymore definitions.`);
       }
       else {
         // return all of the defintions

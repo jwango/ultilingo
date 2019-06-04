@@ -34,15 +34,14 @@ function messageCreationService() {
     }
 
     const createDefinitionMessage = function(entry, startNdx) {
-      const total = entry.definitionIds.length;
-      const maxRange = Math.max(startNdx + entry.definitions.length, total);
+      const maxRange = startNdx + entry.definitions.length;
       const minRange = Math.min(startNdx + 1, maxRange);
         let response = 
         [{
             "type": "section",
             "text": {
                 "type": "plain_text",
-                "text": `Found the follow definitions (${minRange}-${maxRange} of ${total}) for ${entry.name}:`,
+                "text": `Found the following definitions (${minRange}-${maxRange}) for ${entry.name}:`,
                 "emoji": true
             }
         }];
@@ -69,7 +68,7 @@ function messageCreationService() {
                   },
                   "value": JSON.stringify({
                     entryId: matcherSvc.mapToEntryId(entry.name),
-                    definitionId: entry.definitions[i].id
+                    definitionId: entry.definitions[i]._id.toString()
                   })
                 },
                 {
@@ -82,7 +81,7 @@ function messageCreationService() {
                   },
                   "value": JSON.stringify({
                     entryId: matcherSvc.mapToEntryId(entry.name),
-                    definitionId: entry.definitions[i].id
+                    definitionId: entry.definitions[i]._id.toString()
                   })
                 },
               ]

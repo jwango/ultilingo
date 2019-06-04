@@ -10,6 +10,7 @@ const suggestionsSvc = require('../services/suggestions.service');
 
 const router = express.Router();
 const MAX_SUGGESTIONS = 3;
+const FLAG_THRESHOLD = +(process.env.FLAG_THRESHOLD);
 
 router.post('/ultilingo', function(req, res, next) {
   const wordToDefine = req.body['text'];
@@ -22,7 +23,7 @@ router.post('/ultilingo', function(req, res, next) {
         let promises = [];
         let finalResults = [];
         allSuggestions.forEach(suggestion => {
-          promises.push(dataSvc.getEntry(suggestion));
+          promises.push(dataSvc.getEntry(suggestion, FLAG_THRESHOLD));
         });
         return Promise.all(promises)
           .then(results => {
@@ -57,7 +58,7 @@ router.post('/ultilingo', function(req, res, next) {
         "text": "Sorry, I can't look up that word."
       });
     } else {
-      dataSvc.getEntry(wordToDefine, 0, 3)
+      dataSvc.getEntry(wordToDefine, FLAG_THRESHOLD, 0, 3)
         .then(function (entry) {
           if(!entry){
               // return "dont have a this entry would you like to add it"

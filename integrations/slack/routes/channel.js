@@ -7,6 +7,7 @@ const suggestionsSvc = require('../services/suggestions.service');
 
 const router = express.Router();
 const MAX_SUGGESTIONS = 3;
+const FLAG_THRESHOLD = +(process.env.FLAG_THRESHOLD);
 
 router.get('/', function(req, res, next) {
 
@@ -29,7 +30,7 @@ router.get('/suggest', async function(req, res, next) {
       let promises = [];
       let finalResults = [];
       allSuggestions.forEach(suggestion => {
-        promises.push(dataSvc.getEntry(suggestion));
+        promises.push(dataSvc.getEntry(suggestion, FLAG_THRESHOLD));
       });
       Promise.all(promises).then(results => {
         for (const [i, result] of results.entries()) {

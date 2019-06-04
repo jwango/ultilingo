@@ -49,7 +49,7 @@ Searches the glossary for the term. If no similar entry is found, prompts user t
 2. Add a `.env` file in the root of the project for environment variables:
     - `SLACK_BOT_TOKEN`=`"<Slack Bot Token>"`
     - `SLACK_USER_TOKEN`=`"<Slack User Token>"`
-    - `SLACK_SECRET`=`"<Slack Client Secret>"`
+    - `SLACK_SECRET`=`"<Slack Signing Secret>"`
     - `LOG_LEVEL`=`"WARN"`
     - `FLAG_THRESHOLD`=`"1"`
     - `ENABLE_API`=`"true" // set this to true for debugging the general API`
@@ -61,7 +61,9 @@ Same deal as running locally, except on your favorite hosting solution. Whatever
 # TODO
 
 ## TODO (MVP):
-- [ ] Persistent DB integration with MongoDB (make sure to follow all security protocols!)
+- [x] Persistent DB integration with MongoDB
+- [ ] Review scalability via MongoDB
+- [ ] Look at MongoDB transactions, atomic ops, and failure conditions
 - [x] Flagging of definitions (all)
 - [ ] Deleting of definitions (admins)
 - [ ] Deleting of entries (admins)

@@ -4,6 +4,8 @@ const dataSvc = require('../services/data.service');
 const log4js = require('log4js');
 const logger = log4js.getLogger();
 
+const FLAG_THRESHOLD = +(process.env.FLAG_THRESHOLD);
+
 /* GET entries listing. */
 router.get('/', function(req, res, next) {
   logger.debug('test log');
@@ -34,7 +36,7 @@ router.post('/', function(req, res, next) {
 
 router.get('/:entryId', function(req, res, next) {
   const entryId = req.params['entryId'];
-  dataSvc.getEntry(entryId)
+  dataSvc.getEntry(entryId, FLAG_THRESHOLD)
     .then(function(entry) {
       if (!entry) {
         res.status(404).end();
@@ -47,7 +49,7 @@ router.get('/:entryId', function(req, res, next) {
 
 router.get('/:entryId/definitions', function(req, res, next) {
   const entryId = req.params['entryId'];
-  dataSvc.getEntry(entryId)
+  dataSvc.getEntry(entryId, FLAG_THRESHOLD)
     .then(function(entry) {
       if (!entry) {
         res.status(404).end();
@@ -76,17 +78,29 @@ router.post('/:entryId/definitions', function(req, res, next) {
 router.get('/:entryId/definitions/:definitionId/flags', function(req, res, next) {
   const entryId = req.params['entryId'];
   const definitionId = req.params['definitionId'];
-  const p1 = dataSvc.getEntry(entryId, 0, 0);
-  const p2 = dataSvc.getDefinition(definitionId);
 
-  Promise.all([p1, p2])
-    .then(function([entry, definition]) {
-      if (entry && definition && (entry.definitionIds.concat(entry.flaggedDefinitionIds).includes(definition.id))) {
+  dataSvc.getDefinition(entryId, definitionId)
+    .then(function(definition) {
+      if (definition) {
         res.json({
-          "flagCount": definition.flaggedCount
+          "flaggedCount": definition.flaggedCount
         });
       } else {
         res.status(404).send('Could not find the definition for the given entry.');
+      }
+    })
+    .catch(next);
+});
+
+router.get('/:entryId/definitions/:definitionId', function(req, res, next) {
+  const entryId = req.params['entryId'];
+  const definitionId = req.params['definitionId'];
+  dataSvc.getDefinition(entryId, definitionId)
+    .then(function(definition) {
+      if (!definition) {
+        res.status(404).send('Could not find the definition for the given entry.');
+      } else {
+        res.json(definition);
       }
     })
     .catch(next);
@@ -96,6 +110,33 @@ router.post('/:entryId/definitions/:definitionId/flags', function(req, res, next
   const entryId = req.params['entryId'];
   const definitionId = req.params['definitionId'];
   dataSvc.flagDefinition(entryId, definitionId)
+    .then(function() {
+      res.status(200).end();
+    })
+    .catch(next);
+});
+
+router.get('/:entryId/definitions/:definitionId/votes', function(req, res, next) {
+  const entryId = req.params['entryId'];
+  const definitionId = req.params['definitionId'];
+
+  dataSvc.getDefinition(entryId, definitionId)
+    .then(function(definition) {
+      if (definition) {
+        res.json({
+          "votes": definition.votes
+        });
+      } else {
+        res.status(404).send('Could not find the definition for the given entry.');
+      }
+    })
+    .catch(next);
+});
+
+router.post('/:entryId/definitions/:definitionId/votes', function(req, res, next) {
+  const entryId = req.params['entryId'];
+  const definitionId = req.params['definitionId'];
+  dataSvc.addVote(entryId, definitionId)
     .then(function() {
       res.status(200).end();
     })

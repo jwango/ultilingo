@@ -3,10 +3,10 @@ const searchUtils = require('../helpers/search-utils');
 function matcherService() {
 
   // returns the entryId for the given term
-  const match = function(dict, term) {
-    const ndx = searchUtils.binaryIndexOf(dict.entryIds, (term || "").toLowerCase());
+  const match = function(entryIds, term) {
+    const ndx = searchUtils.binaryIndexOf(entryIds, (term || "").toLowerCase());
     if (ndx >= 0) { 
-      return dict.entryIds[ndx];
+      return entryIds[ndx];
     }
     return null;
   };
