@@ -33,13 +33,16 @@ Searches the glossary for the term. If no similar entry is found, prompts user t
 
 `[POST]  /entries/:entryId/definitions`
 
-`[ GET]  /definitions`
+`[ GET]  /entries/:entryId/definitions/:definitionId`
 
-`[POST]  /definitions`
+`[ GET]  /entries/:entryId/definitions/:definitionId/votes`
 
-`[ GET]  /definitions/:definitionId`
+`[POST]  /entries/:entryId/definitions/:definitionId/votes`
 
-`[POST]  /definitions/:definitionId/votes`
+`[ GET]  /entries/:entryId/definitions/:definitionId/flags`
+
+`[POST]  /entries/:entryId/definitions/:definitionId/flags`
+
 
 ## Running
 
