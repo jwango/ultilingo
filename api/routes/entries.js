@@ -8,7 +8,6 @@ const FLAG_THRESHOLD = +(process.env.FLAG_THRESHOLD);
 
 /* GET entries listing. */
 router.get('/', function(req, res, next) {
-  logger.debug('test log');
   dataSvc.getEntryIds()
     .then(function(entryIds) {
       res.json(entryIds);

@@ -2,8 +2,9 @@ const express = require('express');
 const rp = require('request-promise');
 const log4js = require('log4js');
 const logger = log4js.getLogger();
-
 const router = express.Router();
+
+const oauthSvc = require('../services/oauth.service');
 
 router.get('/', function(req, res) {
   // When a user authorizes an app, a code query parameter is passed on the oAuth endpoint. If that code is not there, we respond with an error message
@@ -30,6 +31,14 @@ router.get('/', function(req, res) {
         logger.log(err);
       });
   }
+});
+
+router.get('/accessToken', function(req, res) {
+  return oauthSvc
+    .authenticate()
+    .then(function (response) {
+      res.send(response);
+    });
 });
 
 module.exports = router;

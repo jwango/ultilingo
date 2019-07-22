@@ -6,6 +6,7 @@ var morgan = require('morgan');
 var log4js = require('log4js');
 
 const verificationSvc = require('../integrations/slack/services/verification.service');
+const oauthSvc = require('../integrations/slack/services/oauth.service');
 
 const logLevel = process.env.LOG_LEVEL || 'WARN';
 console.log(logLevel);
@@ -29,12 +30,35 @@ var interactionsRouter = require('../integrations/slack/routes/interactions');
 var channelRouter = require('../integrations/slack/routes/channel');
 var authRouter = require('../integrations/slack/routes/auth');
 
-function verify(req, res, buf, encoding) {
+const slackVerify = function(req, res, buf, encoding) {
   const route = req.path.split('/');
   if (route.length > 0 && route[1] === 'slack') {
     verificationSvc.bodyParserVerify(req, res, buf, encoding);
   }
 }
+
+const apiGuard = function(req, res, next) {
+  const tokens = (req.get('Authorization') || '').split('Bearer ');
+  if (tokens[0] == "" && tokens.length > 1) {
+    oauthSvc
+      .authTest(tokens[1])
+      .then(function(response) {
+        if (!response || !response.ok) {
+          res.status(403).send("Token failed.");
+        } else {
+          const toCheck = [response.team_id, response.user_id].join('.');
+          if (process.env.SLACK_ADMIN_WHITELIST.split(',').findIndex(function(value) { return toCheck === value; }) == -1) {
+            res.status(403).send("This user does not have sufficient access.");
+          } else {
+            next();
+          }
+        }
+      });
+  } else {
+    res.status(403).send("Invalid bearer token.");
+  }
+  
+};
 
 var app = express();
 
@@ -44,17 +68,17 @@ app.set('view engine', 'jade');
 
 app.use(morgan('common'));
 app.use(express.json({
-  verify: verify
+  verify: slackVerify
 }));
 app.use(express.urlencoded({
   extended: false,
-  verify: verify
+  verify: slackVerify
 }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 if (process.env.ENABLE_API == 'true') {
-  app.use('/entries', entriesRouter);
+  app.use('/api/entries', apiGuard, entriesRouter);
 }
 app.use('/slack/slash', slashRouter);
 app.use('/slack/interactions', interactionsRouter);
