@@ -27,6 +27,7 @@ var entriesRouter = require('./routes/entries');
 var slashRouter = require('../integrations/slack/routes/slash');
 var interactionsRouter = require('../integrations/slack/routes/interactions');
 var channelRouter = require('../integrations/slack/routes/channel');
+var authRouter = require('../integrations/slack/routes/auth');
 
 function verify(req, res, buf, encoding) {
   const route = req.path.split('/');
@@ -58,6 +59,7 @@ if (process.env.ENABLE_API == 'true') {
 app.use('/slack/slash', slashRouter);
 app.use('/slack/interactions', interactionsRouter);
 app.use('/slack/channel', channelRouter);
+app.use('/slack/oauth', authRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
