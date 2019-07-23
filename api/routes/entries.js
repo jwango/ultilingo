@@ -105,6 +105,20 @@ router.get('/:entryId/definitions/:definitionId', function(req, res, next) {
     .catch(next);
 });
 
+router.delete('/:entryId/definitions/:definitionId', function(req, res, next) {
+  const entryId = req.params['entryId'];
+  const definitionId = req.params['definitionId'];
+  dataSvc.deleteDefinition(entryId, definitionId)
+    .then(function(result) {
+      if (!result) {
+        res.status(404).end();
+      } else {
+        res.status(200).end();
+      }
+    })
+    .catch(next);
+});
+
 router.post('/:entryId/definitions/:definitionId/flags', function(req, res, next) {
   const entryId = req.params['entryId'];
   const definitionId = req.params['definitionId'];

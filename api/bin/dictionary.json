@@ -7,7 +7,7 @@
       "definitionsCounter": 1,
       "definitions": [
         {
-          "_id": 0,
+          "_id": "0",
           "dateAdded": "2019-05-23T22:23:07.302Z",
           "dateUpdated": "2019-05-23T22:23:07.302Z",
           "votes": 0,
@@ -28,7 +28,7 @@
       "definitionsCounter": 2,
       "definitions": [
         {
-          "_id": 0,
+          "_id": "0",
           "dateAdded": "2019-05-23T22:24:48.634Z",
           "dateUpdated": "2019-06-04T01:57:18.430Z",
           "votes": 0,
@@ -41,7 +41,7 @@
           "value": "(NBA) Designated Veteran Player Extension. Playerse must have seven or eight years of service in the league on their drafted teams and prove themselves distinguished."
         },
         {
-          "_id": 1,
+          "_id": "1",
           "dateAdded": "2019-05-23T22:32:19.067Z",
           "dateUpdated": "2019-05-23T22:32:19.067Z",
           "votes": 0,

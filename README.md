@@ -35,6 +35,8 @@ Searches the glossary for the term. If no similar entry is found, prompts user t
 
 `[ GET]  /entries/:entryId/definitions/:definitionId`
 
+`[ DEL]  /entries/:entryId/definitions/:definitionId`
+
 `[ GET]  /entries/:entryId/definitions/:definitionId/votes`
 
 `[POST]  /entries/:entryId/definitions/:definitionId/votes`

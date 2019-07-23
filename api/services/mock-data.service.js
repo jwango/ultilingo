@@ -107,7 +107,7 @@ function dataService() {
             }
           ]
         };
-        const insertNdx = searchUtils.binaryIndexOf(dict.entryIds, entryId, true);
+        const insertNdx = searchUtils.binaryIndexOf(dict.entryIds, entryId, { giveNearest: true });
         dict.entryIds.splice(insertNdx, 0, entryId);
         return this._write(dict);
       });
@@ -139,6 +139,34 @@ function dataService() {
         entry.dateUpdated = today.toISOString();
         entry.definitionsCounter += 1;
         return this._write(dict);
+      });
+  }
+
+  const deleteDefinition = function(entryId, definitionId) {
+    return _read()
+      .then((dict) => {
+        if (!dict.entries[entryId]) {
+          return false;
+        }
+
+        const index = searchUtils.binaryIndexOf(
+          dict.entries[entryId].definitions,
+          definitionId,
+          {
+            giveNearest: false,
+            mapFn: function (definition) {
+              return definition._id;
+            }
+          }
+        );
+
+        if (index === -1) {
+          return false;
+        }
+
+        dict.entries[entryId].definitions.splice(index, 1);
+        dict.entries[entryId].definitionsCounter -= 1;
+        return this._write(dict).then(() => true);
       });
   }
 
@@ -203,6 +231,7 @@ function dataService() {
     addEntry: addEntry,
     getDefinition: getDefinition,
     addDefinition: addDefinition,
+    deleteDefinition: deleteDefinition,
     flagDefinition: flagDefinition,
     addVote: addVote
   };

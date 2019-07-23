@@ -76,7 +76,6 @@ function mongoDataService(connectionString) {
             name: name,
             dateAdded: today.toISOString(),
             dateUpdated: today.toISOString(),
-            definitionsCounter: 1,
             definitions: [{
               _id: new ObjectId().toHexString(),
               dateAdded: today.toISOString(),
@@ -96,9 +95,12 @@ function mongoDataService(connectionString) {
         return client
           .db(DB)
           .collection(ENTRIES_COLLECTION)
-          .findOne({ "_id": entryId }, { "definitions": { "$elemMatch": { "_id": definitionId } } })
+          .findOne({ "_id": entryId, "definitions": { "$elemMatch": { "_id": definitionId } } })
           .then((entry) => {
-            return entry.definitions.find((definition) => definition.id === definitionId ) || null;
+            if (!entry || !entry.definitions) {
+              return null;
+            }
+            return entry.definitions.find((definition) => definition._id == definitionId ) || null;
           });
       });
   }
@@ -126,6 +128,21 @@ function mongoDataService(connectionString) {
                   value: value
                 } 
               }
+            }
+          );
+      });
+  }
+
+  const deleteDefinition = function(entryId, definitionId) {
+    return this._getClient()
+      .then((client) => {
+        return client
+          .db(DB)
+          .collection(ENTRIES_COLLECTION)
+          .updateOne(
+            { "_id": entryId },
+            {
+              $pull: { "definitions": { "_id": definitionId } }
             }
           );
       });
@@ -183,6 +200,7 @@ function mongoDataService(connectionString) {
     addEntry: addEntry,
     getDefinition: getDefinition,
     addDefinition: addDefinition,
+    deleteDefinition: deleteDefinition,
     flagDefinition: flagDefinition,
     addVote: addVote
   };
