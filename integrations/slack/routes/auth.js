@@ -6,7 +6,7 @@ const router = express.Router();
 
 const oauthSvc = require('../services/oauth.service');
 
-router.get('/', function(req, res) {
+router.get('/callback', function(req, res) {
   // When a user authorizes an app, a code query parameter is passed on the oAuth endpoint. If that code is not there, we respond with an error message
   if (!req.query.code) {
     res.status(500);

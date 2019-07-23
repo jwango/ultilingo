@@ -43,6 +43,10 @@ Searches the glossary for the term. If no similar entry is found, prompts user t
 
 `[POST]  /entries/:entryId/definitions/:definitionId/flags`
 
+`[GET]   /slack/oauth/accessToken`
+
+`[GET]   /slack/oauth/callback`
+
 
 ## Running
 
@@ -52,7 +56,11 @@ Searches the glossary for the term. If no similar entry is found, prompts user t
 2. Add a `.env` file in the root of the project for environment variables:
     - `SLACK_BOT_TOKEN`=`"<Slack Bot Token>"`
     - `SLACK_USER_TOKEN`=`"<Slack User Token>"`
+    - `SLACK_CLIENT_ID`=`"<Slack Client ID>"`
+    - `SLACK_CLIENT_SECRET`=`"<Slack Client Secret>"`
+    - `SLACK_REDIRECT_URI`=`"<Slack OAuth Redirect URI>"`
     - `SLACK_SECRET`=`"<Slack Signing Secret>"`
+    - `SLACK_ADMIN_WHITELIST`=`"<admin1_team_id>.<admin1_user_Id>,<admin2_team_id>.<admin2_user_id>"`
     - `LOG_LEVEL`=`"WARN"`
     - `FLAG_THRESHOLD`=`"1"`
     - `ENABLE_API`=`"true" // set this to true for debugging the general API`
@@ -70,7 +78,7 @@ Same deal as running locally, except on your favorite hosting solution. Whatever
 - [x] Flagging of definitions (all)
 - [ ] Deleting of definitions (admins)
 - [ ] Deleting of entries (admins)
-- [x] General API security (secured via on / off flag)
+- [x] General API security (secured via on / off flag + slack oauth flow)
 - [x] Slack request verification (secure slack integration API from DDoS / malicious intent)
 - [x] Test terms that have spaces in them
 - [ ] Improve matching algorithm to provide suggestions
