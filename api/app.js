@@ -82,7 +82,7 @@ if (process.env.ENABLE_API == 'true') {
 }
 app.use('/slack/slash', slashRouter);
 app.use('/slack/interactions', interactionsRouter);
-app.use('/slack/channel', channelRouter);
+app.use('/slack/channel', apiGuard, channelRouter);
 app.use('/slack/oauth', authRouter);
 
 // catch 404 and forward to error handler
