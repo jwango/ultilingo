@@ -121,7 +121,7 @@ function handleDialogSubmission(payload, req, res, next) {
   switch (callbackId) {
     case actions.ADD_DEFINITION_DIALOG:
       definitionValue = submission[formElements.DEFINITION_VALUE];
-      dataSvc.addDefinition(definitionValue, state,  { ext: extensions.SLACK, id: user.id, name: user.username || user.name })
+      dataSvc.addDefinition(definitionValue, state,  { [extensions.SLACK]: { id: user.id, name: user.username || user.name } })
         .then(function() {
           const resp = sendMessage(
             responseUrl,

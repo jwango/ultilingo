@@ -89,6 +89,7 @@ Same deal as running locally, except on your favorite hosting solution. Whatever
 - [x] Improve naive search performance with binaryIndexOf
 - [x] Slack limit number of definitions shown
 - [x] Limit "contribute" to current channel-like conversation
+- [ ] Limit votes by user id
 - [ ] Slack clean up immediate responses
 - [ ] Slack investigate warning icon next to "Show More" and "Good Definition"
 - [ ] Slack add failure responses

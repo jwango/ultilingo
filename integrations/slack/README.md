@@ -20,8 +20,13 @@
         - im:history
         - bot
         - commands
+        - identity.basic
 6. Add the following slack-specific environment variables to your deployed instance of the web service:
     - `SLACK_BOT_TOKEN`=`"<Slack Bot Token>"`
     - `SLACK_USER_TOKEN`=`"<Slack User Token>"`
+    - `SLACK_CLIENT_ID`=`"<Slack Client ID>"`
+    - `SLACK_CLIENT_SECRET`=`"<Slack Client Secret>"`
+    - `SLACK_REDIRECT_URI`=`"<Slack OAuth Redirect URI>"`
     - `SLACK_SECRET`=`"<Slack Signing Secret>"`
+    - `SLACK_ADMIN_WHITELIST`=`"<admin1_team_id>.<admin1_user_Id>,<admin2_team_id>.<admin2_user_id>"`
 7. Install the App to your workspace.

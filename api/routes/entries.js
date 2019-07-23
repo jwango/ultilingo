@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
+const extensions = require('../helpers/extensions');
 const dataSvc = require('../services/data.service');
+const oauthSvc = require('../../integrations/slack/services/oauth.service');
 const log4js = require('log4js');
 const logger = log4js.getLogger();
 
@@ -79,7 +81,7 @@ router.post('/:entryId/definitions', function(req, res, next) {
   if (!value) {
     res.status(400).send('Request body is missing a proper value.');
   } else {
-    dataSvc.addDefinition(value, entryId)
+    dataSvc.addDefinition(value, entryId, { [extensions.API]: { id: res.locals.user } })
       .then(function() {
         res.status(201).end();
       })

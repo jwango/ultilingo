@@ -1,4 +1,5 @@
 const extensions = {
+  API: 'api',
   SLACK: 'slack'
 };
 

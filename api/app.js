@@ -46,10 +46,11 @@ const apiGuard = function(req, res, next) {
         if (!response || !response.ok) {
           res.status(403).send("Token failed.");
         } else {
-          const toCheck = [response.team_id, response.user_id].join('.');
+          const toCheck = response.user_id;
           if (process.env.SLACK_ADMIN_WHITELIST.split(',').findIndex(function(value) { return toCheck === value; }) == -1) {
             res.status(403).send("This user does not have sufficient access.");
           } else {
+            res.locals.user = toCheck;
             next();
           }
         }
