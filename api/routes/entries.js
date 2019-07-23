@@ -46,6 +46,19 @@ router.get('/:entryId', function(req, res, next) {
     .catch(next);
 });
 
+router.delete('/:entryId', function(req, res, next) {
+  const entryId = req.params['entryId'];
+  dataSvc.deleteEntry(entryId)
+    .then(function(result) {
+      if (!result) {
+        res.status(404).end();
+      } else {
+        res.status(200).end();
+      }
+    })
+    .catch(next);
+});
+
 router.get('/:entryId/definitions', function(req, res, next) {
   const entryId = req.params['entryId'];
   dataSvc.getEntry(entryId, FLAG_THRESHOLD)

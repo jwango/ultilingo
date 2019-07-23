@@ -89,6 +89,18 @@ function mongoDataService(connectionString) {
       });
   }
 
+  const deleteEntry = function(entryId) {
+    return this._getClient()
+      .then((client) => {
+        return client
+          .db(DB)
+          .collection(ENTRIES_COLLECTION)
+          .deleteOne({ "_id": entryId })
+          .then((result) => !!result && result.deletedCount > 0)
+          .catch(() => false);
+      });
+  }
+
   const getDefinition = function(entryId, definitionId) {
     return this._getClient()
       .then((client) => {
@@ -144,7 +156,9 @@ function mongoDataService(connectionString) {
             {
               $pull: { "definitions": { "_id": definitionId } }
             }
-          );
+          )
+          .then((result) => !!result && result.modifiedCount > 0)
+          .catch(() => false);
       });
   }
 
@@ -198,6 +212,7 @@ function mongoDataService(connectionString) {
     getEntryIds: getEntryIds,
     getEntry: getEntry,
     addEntry: addEntry,
+    deleteEntry: deleteEntry,
     getDefinition: getDefinition,
     addDefinition: addDefinition,
     deleteDefinition: deleteDefinition,

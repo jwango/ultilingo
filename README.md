@@ -29,6 +29,8 @@ Searches the glossary for the term. If no similar entry is found, prompts user t
 
 `[ GET]  /entries/:entryId`
 
+`[ DEL]  /entries/:entryId`
+
 `[ GET]  /entries/:entryId/definitions`
 
 `[POST]  /entries/:entryId/definitions`

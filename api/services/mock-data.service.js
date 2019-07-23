@@ -113,6 +113,22 @@ function dataService() {
       });
   }
 
+  const deleteEntry = function(entryId) {
+    return _read()
+      .then((dict) => {
+        if (!dict.entries[entryId]) {
+          return false;
+        }
+        const index = searchUtils.binaryIndexOf(dict.entryIds, entryId, { giveNearest: false });
+        if (index === -1) {
+          return false;
+        }
+        dict.entryIds.splice(index, 1);
+        dict.entries[entryId] = undefined;
+        return this._write(dict).then(() => true);
+      });
+  }
+
   const getDefinition = function(entryId, definitionId) {
     return _read()
       .then(function(dict) {
@@ -229,6 +245,7 @@ function dataService() {
     getEntryIds: getEntryIds,
     getEntry: getEntry,
     addEntry: addEntry,
+    deleteEntry: deleteEntry,
     getDefinition: getDefinition,
     addDefinition: addDefinition,
     deleteDefinition: deleteDefinition,
