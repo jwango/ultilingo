@@ -80,8 +80,8 @@ Same deal as running locally, except on your favorite hosting solution. Whatever
 - [ ] Review scalability via MongoDB
 - [ ] Look at MongoDB transactions, atomic ops, and failure conditions
 - [x] Flagging of definitions (all)
-- [ ] Deleting of definitions (admins)
-- [ ] Deleting of entries (admins)
+- [x] Deleting of definitions (admins)
+- [x] Deleting of entries (admins)
 - [x] General API security (secured via on / off flag + slack oauth flow)
 - [x] Slack request verification (secure slack integration API from DDoS / malicious intent)
 - [x] Test terms that have spaces in them
