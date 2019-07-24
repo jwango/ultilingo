@@ -90,6 +90,7 @@ function mongoDataService(connectionString) {
               dateAdded: today.toISOString(),
               dateUpdated: today.toISOString(),
               votes: 0,
+              voteIds: [],
               userInfo: userInfo || {},
               flaggedCount: 0,
               value: definitionValue
