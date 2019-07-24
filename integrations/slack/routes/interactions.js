@@ -162,7 +162,7 @@ function handleDialogSubmission(payload, req, res, next) {
 function onUpvote(responseUrl, actionValue, userId) {
   const actionValueParsed = JSON.parse(actionValue);
 
-  dataSvc.addVote(actionValueParsed.entryId, actionValueParsed.definitionId, extensions.SLACK, userId)
+  return dataSvc.addVote(actionValueParsed.entryId, actionValueParsed.definitionId, extensions.SLACK, userId)
     .then(function(opResult) {
       if (!opResult.success) {
         throw opResult.error;
