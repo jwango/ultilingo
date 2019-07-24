@@ -137,7 +137,7 @@ function handleDialogSubmission(payload, req, res, next) {
 }
 
 function onAddDefinitionSubmission(res, responseUrl, entry, definitionValue, user) {
-  dataSvc.addDefinition(definitionValue, entry, { [extensions.SLACK]: { id: user.id, name: user.username || user.name } })
+  return dataSvc.addDefinition(definitionValue, entry, { [extensions.SLACK]: { id: user.id, name: user.username || user.name } })
     .then(function(opResult) {
       let statusCode = 201;
       let msg = "Your definition for " + entry + " has been successfully added.";
@@ -156,7 +156,7 @@ function onAddDefinitionSubmission(res, responseUrl, entry, definitionValue, use
 }
 
 function onAddEntrySubmission(res, responseUrl, entry, definitionValue, user) {
-  dataSvc.addEntry(entry, definitionValue, { [extensions.SLACK]: { id: user.id, name: user.username || user.name } })
+  return dataSvc.addEntry(entry, definitionValue, { [extensions.SLACK]: { id: user.id, name: user.username || user.name } })
     .then(function(opResult) {
       let statusCode = 201;
       let msg = "Your new entry " + entry + " has been successfully added.";
@@ -176,7 +176,6 @@ function onAddEntrySubmission(res, responseUrl, entry, definitionValue, user) {
 
 function onUpvote(responseUrl, actionValue, userId) {
   const actionValueParsed = JSON.parse(actionValue);
-
   return dataSvc.addVote(actionValueParsed.entryId, actionValueParsed.definitionId, extensions.SLACK, userId)
     .then(function(opResult) {
       if (!opResult.success) {
@@ -282,7 +281,7 @@ function onAddEntry(triggerId, entryName) {
 
 function onFlagDefinition(responseUrl, actionValue) {
   const actionValueParsed = JSON.parse(actionValue);
-  dataSvc.flagDefinition(actionValueParsed.entryId, actionValueParsed.definitionId)
+  return dataSvc.flagDefinition(actionValueParsed.entryId, actionValueParsed.definitionId)
     .then(function(opResult) {
       if (!opResult.success) {
         throw opResult.error;
@@ -293,7 +292,7 @@ function onFlagDefinition(responseUrl, actionValue) {
 
 function onShowMoreDefinitions(triggerId, responseUrl, actionValue) {
   const actionValueParsed = JSON.parse(actionValue);
-  dataSvc.getEntry(actionValueParsed.entryId, FLAG_THRESHOLD, actionValueParsed.startNdx, 3)
+  return dataSvc.getEntry(actionValueParsed.entryId, FLAG_THRESHOLD, actionValueParsed.startNdx, 3)
     .then(function (entry) {
       if (!entry || entry.definitions.length === 0){
         return sendMessage(responseUrl, `Cannot find anymore definitions.`);
