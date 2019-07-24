@@ -90,8 +90,8 @@ Same deal as running locally, except on your favorite hosting solution. Whatever
 - [x] Slack limit number of definitions shown
 - [x] Limit "contribute" to current channel-like conversation
 - [x] Limit votes by user id
-- [ ] Slack clean up immediate responses
-- [ ] Slack investigate warning icon next to "Show More" and "Good Definition"
+- [x] Slack clean up immediate responses
+- [x] Slack investigate warning icon next to "Show More" and "Good Definition"
 - [x] Slack add failure responses
 
 ## TODO (Backlog):
