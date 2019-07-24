@@ -23,7 +23,7 @@ function oauthService(clientId, redirectUri) {
         return res;
       })
       .catch(function(err) {
-        logger.log(err);
+        logger.error(err);
         return err;
       });
   }
@@ -41,7 +41,7 @@ function oauthService(clientId, redirectUri) {
         return res;
       })
       .catch(function(err) {
-        logger.log(err);
+        logger.error(err);
         return err;
       });
   }

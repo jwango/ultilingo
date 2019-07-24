@@ -11,7 +11,7 @@ router.get('/callback', function(req, res) {
   if (!req.query.code) {
     res.status(500);
     res.send({"Error": "Looks like we're not getting code."});
-    logger.log("Looks like we're not getting code.");
+    logger.error("Looks like we're not getting code.");
   } else {
     // We'll do a GET call to Slack's `oauth.access` endpoint, passing our app's client ID, client secret, and the code we just got as query parameters.
     return rp({
@@ -28,7 +28,7 @@ router.get('/callback', function(req, res) {
         res.json(response);
       })
       .catch(function (err) {
-        logger.log(err);
+        logger.error(err);
       });
   }
 });

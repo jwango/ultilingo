@@ -34,7 +34,6 @@ function dataService() {
   const _writeHelper = function() {
     if (this._writeQ.length > 0) {
       const reqObj = this._writeQ.shift();
-      logger.log('[W] POP');
       return new Promise(function(resolve, reject) {
         fs.writeFile(_dictFilePath, JSON.stringify(reqObj, null, 2), function(err) {
           if (err) {
@@ -52,7 +51,6 @@ function dataService() {
 
   const _write = function(obj) {
     this._writeQ.push(obj);
-    logger.log('[W] PUSH');
     if (!this._writePrev) {
       this._writePrev = this._writeHelper();
     }

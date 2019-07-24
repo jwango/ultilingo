@@ -21,7 +21,7 @@ function verificationService(secret) {
     try {
       verified = crypto.timingSafeEqual(Buffer.from(sigExpected), Buffer.from(signature));
     } catch (err) {
-      logger.debug(err);
+      logger.error(err);
     }
     hmac.end();
     if (!verified) {
