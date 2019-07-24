@@ -164,11 +164,25 @@ router.get('/:entryId/definitions/:definitionId/votes', function(req, res, next)
 router.post('/:entryId/definitions/:definitionId/votes', function(req, res, next) {
   const entryId = req.params['entryId'];
   const definitionId = req.params['definitionId'];
-  dataSvc.addVote(entryId, definitionId)
-    .then(function() {
-      res.status(200).end();
-    })
+  dataSvc.addVote(entryId, definitionId, extensions.API, res.locals.user)
+    .then(genResponseHandler(res))
     .catch(next);
 });
+
+function genResponseHandler(res) {
+  return (opResult) => {
+    if (opResult.success) {
+      res.status(200).end();
+    } else {
+      let msg = 'Something went wrong.';
+      let statusCode = 500;
+      if (opResult.statusCode) {
+        statusCode = opResult.statusCode;
+        msg = (opResult.error || {}).message || '';
+      }
+      res.status(statusCode).send(msg);
+    }
+  };
+}
 
 module.exports = router;

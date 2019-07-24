@@ -11,6 +11,7 @@
           "dateAdded": "2019-05-23T22:23:07.302Z",
           "dateUpdated": "2019-05-23T22:23:07.302Z",
           "votes": 0,
+          "voteIds": [],
           "userInfo": {
             "slack": {
               "id": null,
@@ -25,14 +26,15 @@
     "dvpe": {
       "name": "DVPE",
       "dateAdded": "2019-05-23T22:24:48.634Z",
-      "dateUpdated": "2019-05-23T22:32:19.067Z",
-      "definitionsCounter": 2,
+      "dateUpdated": "2019-07-24T01:53:06.723Z",
+      "definitionsCounter": 3,
       "definitions": [
         {
           "_id": "0",
           "dateAdded": "2019-05-23T22:24:48.634Z",
           "dateUpdated": "2019-06-04T01:57:18.430Z",
           "votes": 0,
+          "voteIds": [],
           "userInfo": {
             "slack": {
               "id": null,
@@ -47,6 +49,7 @@
           "dateAdded": "2019-05-23T22:32:19.067Z",
           "dateUpdated": "2019-05-23T22:32:19.067Z",
           "votes": 0,
+          "voteIds": [],
           "userInfo": {
             "slack": {
               "id": null,

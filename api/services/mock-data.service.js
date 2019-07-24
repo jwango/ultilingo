@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const matcherSvc = require('./matcher.service');
 const searchUtils = require('../helpers/search-utils');
+const opResult = require('../helpers/op-result');
 const log4js = require('log4js');
 const logger = log4js.getLogger();
 
@@ -97,7 +98,7 @@ function dataService() {
           definitionsCounter: 1,
           definitions: [
             {
-              id: 0,
+              _id: 0,
               dateAdded: today.toISOString(),
               dateUpdated: today.toISOString(),
               votes: 0,
@@ -144,10 +145,11 @@ function dataService() {
         const entry = dict.entries[entryId];
         const newDefinitionId = entry.definitionsCounter;
         entry.definitions.push({
-          id: newDefinitionId,
+          _id: newDefinitionId.toString(),
           dateAdded: today.toISOString(),
           dateUpdated: today.toISOString(),
           votes: 0,
+          voteIds: [],
           userInfo: userInfo || {},
           flaggedCount: 0,
           value: value
@@ -201,16 +203,21 @@ function dataService() {
       });
   }
 
-  const addVote = function(entryId, definitionId) {
+  const addVote = function(entryId, definitionId, ext, userId) {
     return _read()
       .then((dict) => {
         const entry = dict.entries[entryId] || { definitions: [] };
         const definition = entry.definitions.find((definition) => definition._id == definitionId);
         const today = new Date();
         if (!definition) {
-          throw new Error('Definition could not be found for the given entry.');
+          throw opResult(false, 404, new Error('Definition could not be found for the given entry.'));
+        }
+        const extUserId = `${ext}.${userId}`
+        if (definition.voteIds.indexOf(extUserId) !== -1) {
+          throw opResult(false, 400, new Error('This vote has already been counted.'));
         }
         definition.dateUpdated = today.toISOString();
+        definition.voteIds.push(extUserId);
         definition.votes += 1;
         // optimized bubble sort the definition by votes
         let swapped = true;
@@ -226,7 +233,14 @@ function dataService() {
             }
           }
         }
-        return this._write(dict);
+        return this._write(dict)
+          .then(() => {
+            return opResult(true);
+          });
+      })
+      .catch((opResult) => {
+        logger.debug(opResult.error);
+        return opResult;
       });
   }
 

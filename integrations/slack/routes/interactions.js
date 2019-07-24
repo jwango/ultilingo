@@ -61,6 +61,7 @@ function handleBlockActions(payload, req, res, next) {
   // Do we need to loop through all the actions and handle each?
   const actionValue = payload['actions'][0]['value'];
   let actionId = payload['actions'][0]['action_id'];
+  let userId = payload['user']['id'];
   if (actionId.includes(actions.UP_VOTE_BUTTON)) {
     actionId = actions.UP_VOTE_BUTTON;
   } else if (actionId.includes(actions.FLAG_DEFINITION_BUTTON)) {
@@ -69,9 +70,10 @@ function handleBlockActions(payload, req, res, next) {
 
   switch(actionId){
     case actions.UP_VOTE_BUTTON:
-      onUpvote(responseUrl, actionValue)
+      onUpvote(responseUrl, actionValue, userId)
         .catch(function(err) {
           logger.error(err);
+          sendMessage(responseUrl, err.message);
         });
       res.status(200).end();
       break;
@@ -121,7 +123,7 @@ function handleDialogSubmission(payload, req, res, next) {
   switch (callbackId) {
     case actions.ADD_DEFINITION_DIALOG:
       definitionValue = submission[formElements.DEFINITION_VALUE];
-      dataSvc.addDefinition(definitionValue, state,  { [extensions.SLACK]: { id: user.id, name: user.username || user.name } })
+      dataSvc.addDefinition(definitionValue, state, { [extensions.SLACK]: { id: user.id, name: user.username || user.name } })
         .then(function() {
           const resp = sendMessage(
             responseUrl,
@@ -137,7 +139,7 @@ function handleDialogSubmission(payload, req, res, next) {
       break;
     case actions.ADD_ENTRY_DIALOG:
       definitionValue = submission[formElements.DEFINITION_VALUE];
-      dataSvc.addEntry(state, definitionValue, { ext: extensions.SLACK, id: user.id, name: user.username || user.name })
+      dataSvc.addEntry(state, definitionValue, { [extensions.SLACK]: { id: user.id, name: user.username || user.name } })
         .then(function() {
           const resp = sendMessage(
             responseUrl,
@@ -157,11 +159,14 @@ function handleDialogSubmission(payload, req, res, next) {
   }
 }
 
-function onUpvote(responseUrl, actionValue) {
+function onUpvote(responseUrl, actionValue, userId) {
   const actionValueParsed = JSON.parse(actionValue);
 
-  dataSvc.addVote(actionValueParsed.entryId, actionValueParsed.definitionId)
-    .then(function() {
+  dataSvc.addVote(actionValueParsed.entryId, actionValueParsed.definitionId, extensions.SLACK, userId)
+    .then(function(opResult) {
+      if (!opResult.success) {
+        throw opResult.error;
+      }
       return sendMessage(responseUrl, "Thanks for voting and improving our community!");
     });
 }

@@ -1,6 +1,7 @@
 const MongoClient = require('mongodb').MongoClient;
 const ObjectId = require('mongodb').ObjectId;
 const matcherSvc = require('./matcher.service');
+const opResult = require('../helpers/op-result');
 const log4js = require('log4js');
 const logger = log4js.getLogger();
 
@@ -135,6 +136,7 @@ function mongoDataService(connectionString) {
                   dateAdded: today.toISOString(),
                   dateUpdated: today.toISOString(),
                   votes: 0,
+                  voteIds: [],
                   userInfo: userInfo || {},
                   flaggedCount: 0,
                   value: value
@@ -175,32 +177,58 @@ function mongoDataService(connectionString) {
       });
   }
 
-  const addVote = function(entryId, definitionId) {
-    return this._getClient()
+  const addVote = function(entryId, definitionId, ext, userId) {
+    const extUserId = `${ext}.${userId}`;
+    return this.getDefinition(entryId, definitionId)
+      .then((definition) => {
+        if (!definition) {
+          throw opResult(false, 404, new Error('Definition does not exist.'));
+        }
+        if (definition.voteIds.indexOf(extUserId) !== -1) {
+          throw opResult(false, 400, new Error('This vote has already been counted.'));
+        }
+        return this._getClient();
+      })
       .then((client) => {
         return client
           .db(DB)
           .collection(ENTRIES_COLLECTION)
           .updateOne(
             { "_id": entryId, "definitions._id": definitionId },
-            { $inc: { "definitions.$.votes": 1 } }
+            {
+              $inc: { "definitions.$.votes": 1 },
+              $push: { "definitions.$.voteIds": extUserId }
+            }
+          )
+          .then(() => client);
+      })
+      .then((client) => {
+        return client
+          .db(DB)
+          .collection(ENTRIES_COLLECTION)
+          .updateOne(
+            { "_id": entryId, "definitions._id": definitionId },
+            { 
+              $push: {
+                "definitions": {
+                  $each: [],
+                  $sort: { "votes": -1 }
+                }
+              }
+            }
           )
           .then(() => {
-            return client
-              .db(DB)
-              .collection(ENTRIES_COLLECTION)
-              .updateOne(
-                { "_id": entryId, "definitions._id": definitionId },
-                { 
-                  $push: {
-                    "definitions": {
-                      $each: [],
-                      $sort: { "votes": -1 }
-                    }
-                  }
-                }
-              )
-          });
+            return opResult(true);
+          })
+      })
+      .catch((err) => {
+        if (err.isOpResult) {
+          logger.debug(err.error);
+          return err;
+        } else {
+          logger.debug(err);
+          return opResult(false, 500, err);
+        }
       });
     }
 
