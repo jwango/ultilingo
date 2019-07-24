@@ -96,6 +96,7 @@ function handleBlockActions(payload, req, res, next) {
       onFlagDefinition(responseUrl, actionValue)
         .catch(function(err) {
           logger.error(err);
+          sendMessage(responseUrl, err.message);
         });
       res.status(200).end();
       break;
@@ -123,40 +124,54 @@ function handleDialogSubmission(payload, req, res, next) {
   switch (callbackId) {
     case actions.ADD_DEFINITION_DIALOG:
       definitionValue = submission[formElements.DEFINITION_VALUE];
-      dataSvc.addDefinition(definitionValue, state, { [extensions.SLACK]: { id: user.id, name: user.username || user.name } })
-        .then(function() {
-          const resp = sendMessage(
-            responseUrl,
-            "Your definition for " + state + " has been successfully added."
-          );
-          res.status(201).end();
-          return resp;
-        })
-        .catch(function(err) {
-          logger.error(err);
-          res.status(500).end();
-        });
+      onAddDefinitionSubmission(res, responseUrl, state, definitionValue, user);
       break;
     case actions.ADD_ENTRY_DIALOG:
       definitionValue = submission[formElements.DEFINITION_VALUE];
-      dataSvc.addEntry(state, definitionValue, { [extensions.SLACK]: { id: user.id, name: user.username || user.name } })
-        .then(function() {
-          const resp = sendMessage(
-            responseUrl,
-            "Your new entry " + state + " has been successfully added."
-          );
-          res.status(201).end();
-          return resp;
-        })
-        .catch(function(err) {
-          logger.error(err);
-          res.status(500).end();
-        });
+      onAddEntrySubmission(res, responseUrl, state, definitionValue, user);
       break;
     default:
       res.status(404).end();
       break;
   }
+}
+
+function onAddDefinitionSubmission(res, responseUrl, entry, definitionValue, user) {
+  dataSvc.addDefinition(definitionValue, entry, { [extensions.SLACK]: { id: user.id, name: user.username || user.name } })
+    .then(function(opResult) {
+      let statusCode = 201;
+      let msg = "Your definition for " + entry + " has been successfully added.";
+      if (!opResult.success && opResult.error && opResult.error.message) {
+        statusCode = opResult.statusCode || 400;
+        msg = opResult.error.message;
+      }
+      const resp = sendMessage(responseUrl, msg);
+      res.status(statusCode).end();
+      return resp;
+    })
+    .catch(function(err) {
+      logger.error(err);
+      res.status(500).end();
+    });
+}
+
+function onAddEntrySubmission(res, responseUrl, entry, definitionValue, user) {
+  dataSvc.addEntry(entry, definitionValue, { [extensions.SLACK]: { id: user.id, name: user.username || user.name } })
+    .then(function(opResult) {
+      let statusCode = 201;
+      let msg = "Your new entry " + entry + " has been successfully added.";
+      if (!opResult.success && opResult.error && opResult.error.message) {
+        statusCode = opResult.statusCode || 400;
+        msg = opResult.error.message;
+      }
+      const resp = sendMessage(responseUrl, msg);
+      res.status(statusCode).end();
+      return resp;
+    })
+    .catch(function(err) {
+      logger.error(err);
+      res.status(500).end();
+    });
 }
 
 function onUpvote(responseUrl, actionValue, userId) {
@@ -267,9 +282,11 @@ function onAddEntry(triggerId, entryName) {
 
 function onFlagDefinition(responseUrl, actionValue) {
   const actionValueParsed = JSON.parse(actionValue);
-
   dataSvc.flagDefinition(actionValueParsed.entryId, actionValueParsed.definitionId)
-    .then(function() {
+    .then(function(opResult) {
+      if (!opResult.success) {
+        throw opResult.error;
+      }
       return sendMessage(responseUrl, "Definition has been flagged. Thanks for improving our community!");
     });
 }

@@ -8,6 +8,14 @@ const logger = log4js.getLogger();
 const DB = 'ultilingo';
 const ENTRIES_COLLECTION = 'entries';
 
+function wrapError(error) {
+  if (error.isOpResult) {
+    return error;
+  } else {
+    throw opResult(false, 500, error);
+  }
+}
+
 function mongoDataService(connectionString) {
   const client = new MongoClient(connectionString, { useNewUrlParser: true });
 
@@ -86,8 +94,10 @@ function mongoDataService(connectionString) {
               flaggedCount: 0,
               value: definitionValue
             }]
-          });
-      });
+          })
+          .then(() => opResult(true));
+      })
+      .catch(wrapError);
   }
 
   const deleteEntry = function(entryId) {
@@ -97,9 +107,17 @@ function mongoDataService(connectionString) {
           .db(DB)
           .collection(ENTRIES_COLLECTION)
           .deleteOne({ "_id": entryId })
-          .then((result) => !!result && result.deletedCount > 0)
-          .catch(() => false);
-      });
+          .then((result) => {
+            if (!result) {
+              throw opResult(false, 500, new Error('No result from delete.'));
+            }
+            if (result.modifiedCount == 0) {
+              throw opResult(false, 404, new Error('Could not delete the given entry.'));
+            }
+            return opResult(true);
+          });
+      })
+      .catch(wrapError);
   }
 
   const getDefinition = function(entryId, definitionId) {
@@ -143,8 +161,10 @@ function mongoDataService(connectionString) {
                 } 
               }
             }
-          );
-      });
+          )
+          .then(() => opResult(true));
+      })
+      .catch(wrapError);
   }
 
   const deleteDefinition = function(entryId, definitionId) {
@@ -159,9 +179,17 @@ function mongoDataService(connectionString) {
               $pull: { "definitions": { "_id": definitionId } }
             }
           )
-          .then((result) => !!result && result.modifiedCount > 0)
-          .catch(() => false);
-      });
+          .then((result) => {
+            if (!result) {
+              throw opResult(false, 500, new Error('No result from delete.'));
+            }
+            if (result.modifiedCount == 0) {
+              throw opResult(false, 404, new Error('Could not delete the given definition.'));
+            }
+            return opResult(true);
+          });
+      })
+      .catch(wrapError);
   }
 
   const flagDefinition = function(entryId, definitionId) {
@@ -173,8 +201,10 @@ function mongoDataService(connectionString) {
           .updateOne(
             { "_id": entryId, "definitions._id": definitionId },
             { $inc: { "definitions.$.flaggedCount": 1 } }
-          );
-      });
+          )
+          .then(() => opResult(true));
+      })
+      .catch(wrapError);
   }
 
   const addVote = function(entryId, definitionId, ext, userId) {
@@ -217,22 +247,12 @@ function mongoDataService(connectionString) {
               }
             }
           )
-          .then(() => {
-            return opResult(true);
-          })
+          .then(() => opResult(true));
       })
-      .catch((err) => {
-        if (err.isOpResult) {
-          logger.debug(err.error);
-          return err;
-        } else {
-          logger.debug(err);
-          return opResult(false, 500, err);
-        }
-      });
-    }
+      .catch(wrapError);
+  }
 
-    // Public API
+  // Public API
   return {
     _connectionString: connectionString,
     _client: client,

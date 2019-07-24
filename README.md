@@ -92,7 +92,7 @@ Same deal as running locally, except on your favorite hosting solution. Whatever
 - [x] Limit votes by user id
 - [ ] Slack clean up immediate responses
 - [ ] Slack investigate warning icon next to "Show More" and "Good Definition"
-- [ ] Slack add failure responses
+- [x] Slack add failure responses
 
 ## TODO (Backlog):
 - [ ] "Spaces" to localize entries and definitions

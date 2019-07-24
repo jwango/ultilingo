@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const extensions = require('../helpers/extensions');
 const dataSvc = require('../services/data.service');
-const oauthSvc = require('../../integrations/slack/services/oauth.service');
 const log4js = require('log4js');
 const logger = log4js.getLogger();
 
@@ -28,9 +27,7 @@ router.post('/', function(req, res, next) {
     res.status(400).send('Request body definition is missing a proper value.');
   } else {
     dataSvc.addEntry(name, value)
-      .then(function() {
-        res.status(201).end();
-      })
+      .then(genResponseHandler(res, 201))
       .catch(next);
   }
 });
@@ -51,13 +48,7 @@ router.get('/:entryId', function(req, res, next) {
 router.delete('/:entryId', function(req, res, next) {
   const entryId = req.params['entryId'];
   dataSvc.deleteEntry(entryId)
-    .then(function(result) {
-      if (!result) {
-        res.status(404).end();
-      } else {
-        res.status(200).end();
-      }
-    })
+    .then(genResponseHandler(res))
     .catch(next);
 });
 
@@ -82,9 +73,7 @@ router.post('/:entryId/definitions', function(req, res, next) {
     res.status(400).send('Request body is missing a proper value.');
   } else {
     dataSvc.addDefinition(value, entryId, { [extensions.API]: { id: res.locals.user } })
-      .then(function() {
-        res.status(201).end();
-      })
+      .then(genResponseHandler(res, 201))
       .catch(next);
   }
 });
@@ -124,13 +113,7 @@ router.delete('/:entryId/definitions/:definitionId', function(req, res, next) {
   const entryId = req.params['entryId'];
   const definitionId = req.params['definitionId'];
   dataSvc.deleteDefinition(entryId, definitionId)
-    .then(function(result) {
-      if (!result) {
-        res.status(404).end();
-      } else {
-        res.status(200).end();
-      }
-    })
+    .then(genResponseHandler(res))
     .catch(next);
 });
 
@@ -138,9 +121,7 @@ router.post('/:entryId/definitions/:definitionId/flags', function(req, res, next
   const entryId = req.params['entryId'];
   const definitionId = req.params['definitionId'];
   dataSvc.flagDefinition(entryId, definitionId)
-    .then(function() {
-      res.status(200).end();
-    })
+    .then(genResponseHandler(res))
     .catch(next);
 });
 
@@ -169,10 +150,10 @@ router.post('/:entryId/definitions/:definitionId/votes', function(req, res, next
     .catch(next);
 });
 
-function genResponseHandler(res) {
+function genResponseHandler(res, successCode) {
   return (opResult) => {
     if (opResult.success) {
-      res.status(200).end();
+      res.status(successCode || 200).end();
     } else {
       let msg = 'Something went wrong.';
       let statusCode = 500;

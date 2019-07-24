@@ -6,6 +6,14 @@ const opResult = require('../helpers/op-result');
 const log4js = require('log4js');
 const logger = log4js.getLogger();
 
+function wrapError(error) {
+  if (error.isOpResult) {
+    return error;
+  } else {
+    throw opResult(false, 500, error);
+  }
+}
+
 function dataService() {
   // Private
   const _dictFilePath = path.resolve(__dirname, '../bin/dictionary.json');
@@ -86,9 +94,7 @@ function dataService() {
       .then((dict) => {
         const entryId = matcherSvc.mapToEntryId(name);
         if (dict.entries[entryId]) {
-          // TODO: change response to not be an error since this generates a 500
-          logger.error('Entry ' + entryId + ' already exists!')
-          throw new Error("Entry already exists!");
+          throw opResult(false, 400, new Error("Entry already exists."));
         }
         const today = new Date();
         dict.entries[entryId] = {
@@ -110,24 +116,26 @@ function dataService() {
         };
         const insertNdx = searchUtils.binaryIndexOf(dict.entryIds, entryId, { giveNearest: true });
         dict.entryIds.splice(insertNdx, 0, entryId);
-        return this._write(dict);
-      });
+        return this._write(dict).then(() => opResult(true));
+      })
+      .catch(wrapError);
   }
 
   const deleteEntry = function(entryId) {
     return _read()
       .then((dict) => {
         if (!dict.entries[entryId]) {
-          return false;
+          throw opResult(false, 404, new Error('Could not find the given entry.'));
         }
         const index = searchUtils.binaryIndexOf(dict.entryIds, entryId, { giveNearest: false });
         if (index === -1) {
-          return false;
+          throw opResult(false, 404, new Error('Could not find the given entry.'));
         }
         dict.entryIds.splice(index, 1);
         dict.entries[entryId] = undefined;
         return this._write(dict).then(() => true);
-      });
+      })
+      .catch(wrapError);
   }
 
   const getDefinition = function(entryId, definitionId) {
@@ -156,15 +164,16 @@ function dataService() {
         });
         entry.dateUpdated = today.toISOString();
         entry.definitionsCounter += 1;
-        return this._write(dict);
-      });
+        return this._write(dict).then(() => opResult(true));
+      })
+      .catch(wrapError);
   }
 
   const deleteDefinition = function(entryId, definitionId) {
     return _read()
       .then((dict) => {
         if (!dict.entries[entryId]) {
-          return false;
+          throw opResult(false, 404, new Error('Could not find the given entry.'));
         }
 
         const index = searchUtils.binaryIndexOf(
@@ -179,13 +188,14 @@ function dataService() {
         );
 
         if (index === -1) {
-          return false;
+          throw opResult(false, 404, new Error('Definition could not be found for the given entry.'));
         }
 
         dict.entries[entryId].definitions.splice(index, 1);
         dict.entries[entryId].definitionsCounter -= 1;
-        return this._write(dict).then(() => true);
-      });
+        return this._write(dict).then(() => opResult(true));
+      })
+      .catch(wrapError);
   }
 
   const flagDefinition = function(entryId, definitionId) {
@@ -195,12 +205,13 @@ function dataService() {
         const definition = entry.definitions.find((definition) => definition._id == definitionId);
         const today = new Date();
         if (!definition) {
-          throw new Error('Definition could not be found for the given entry.');
+          throw opResult(false, 404, new Error('Definition could not be found for the given entry.'));
         }
         definition.dateUpdated = today.toISOString();
         definition.flaggedCount += 1;
-        return this._write(dict);
-      });
+        return this._write(dict).then(() => opResult(true));
+      })
+      .catch(wrapError);
   }
 
   const addVote = function(entryId, definitionId, ext, userId) {
@@ -233,15 +244,9 @@ function dataService() {
             }
           }
         }
-        return this._write(dict)
-          .then(() => {
-            return opResult(true);
-          });
+        return this._write(dict).then(() => opResult(true));
       })
-      .catch((opResult) => {
-        logger.debug(opResult.error);
-        return opResult;
-      });
+      .catch(wrapError);
   }
 
   const _swap = function(arr, i, j) {
