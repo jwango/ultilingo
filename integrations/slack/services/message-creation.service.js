@@ -50,9 +50,9 @@ function messageCreationService() {
             {
               "type": "section",
               "text": {
-                "type": "plain_text",
-                "text": `${startNdx + i + 1}. ${entry.definitions[i].value} \n Votes: ${entry.definitions[i].votes}`,
-                "emoji": true
+                "type": "mrkdwn",
+                "verbatim": false,
+                "text": `${startNdx + i + 1}. ${entry.definitions[i].value} \n Votes: ${entry.definitions[i].votes}`
               }
             },
             {
