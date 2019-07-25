@@ -34,7 +34,7 @@ router.get('/suggest', async function(req, res, next) {
       });
       Promise.all(promises).then(results => {
         for (const [i, result] of results.entries()) {
-          if (!result) {
+          if (!result || !result.success) {
             finalResults.push(allSuggestions[i]);
           }
         }

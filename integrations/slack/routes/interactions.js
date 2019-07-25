@@ -231,8 +231,8 @@ function onAddDefinition(triggerId, entryName) {
 
 function onAddEntry(triggerId, entryName) {
   return dataSvc.getEntry(entryName, FLAG_THRESHOLD)
-    .then(function(entry) {
-      if (entry) {
+    .then(function(opResult) {
+      if (opResult.success) {
         throw Error('Entry already exists.');
       }
       const dialog = dialogCreationSvc.createDialog(
@@ -293,13 +293,13 @@ function onFlagDefinition(responseUrl, actionValue) {
 function onShowMoreDefinitions(triggerId, responseUrl, actionValue) {
   const actionValueParsed = JSON.parse(actionValue);
   return dataSvc.getEntry(actionValueParsed.entryId, FLAG_THRESHOLD, actionValueParsed.startNdx, 3)
-    .then(function (entry) {
-      if (!entry || entry.definitions.length === 0){
+    .then(function (opResult) {
+      if (!opResult.success || opResult.payload.definitions.length === 0) {
         return sendMessage(responseUrl, `Cannot find anymore definitions.`);
       }
       else {
         // return all of the defintions
-        const blocks = messageCreationSvc.createDefinitionMessage(entry, actionValueParsed.startNdx);
+        const blocks = messageCreationSvc.createDefinitionMessage(opResult.payload, actionValueParsed.startNdx);
         return sendBody(responseUrl, { "blocks": blocks }, true);
       }
     })

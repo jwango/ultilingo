@@ -49,11 +49,11 @@ router.delete('/:entryId', function(req, res, next) {
 router.get('/:entryId/definitions', function(req, res, next) {
   const entryId = req.params['entryId'];
   dataSvc.getEntry(entryId, FLAG_THRESHOLD)
-    .then(function(entry) {
-      if (!entry) {
+    .then(function(opResult) {
+      if (!opResult.success) {
         res.status(404).end();
       } else {
-        res.json(entry.definitions);
+        res.json(opResult.payload.definitions);
       }
     })
     .catch(next);

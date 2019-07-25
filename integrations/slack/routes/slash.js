@@ -28,7 +28,7 @@ router.post('/ultilingo', function(req, res, next) {
         return Promise.all(promises)
           .then(results => {
             for (let [i, result] of results.entries()) {
-              if (!result) {
+              if (!result || !result.success) {
                 finalResults.push(allSuggestions[i]);
               }
             }
