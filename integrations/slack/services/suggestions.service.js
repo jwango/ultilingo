@@ -121,11 +121,10 @@ function suggestionsService() {
             messages = messages.reduce((filtered, messageObj) => {  
               if (!messageObj.subtype && !messageObj.bot_id) {
                 let message = messageObj.text;
-                
                 message = message.replace(/(w\/|<.*>|```.*```|`.*`|&[a-z]+;|:[^\s:]+:)/gi, '');
                 message = message.replace(/[^a-z0-9 \n]+/gi, '');
                 message = message.replace(/\s+/g, ' ');
-                message = message.trim();  
+                message = message.trim();
                 if (message && message.length > 1) {
                   filtered.push(message);
                   allWords = allWords.concat(message.split(' '));
