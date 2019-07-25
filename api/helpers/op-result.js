@@ -1,9 +1,10 @@
-const opResult = function(success, statusCode, error) {
+const opResult = function(success, statusCode, error, payload) {
   return {
     isOpResult: true,
     success: success,
     statusCode: statusCode,
-    error: error
+    error: error,
+    payload: payload
   };
 }
 

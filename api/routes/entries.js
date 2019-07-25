@@ -35,13 +35,7 @@ router.post('/', function(req, res, next) {
 router.get('/:entryId', function(req, res, next) {
   const entryId = req.params['entryId'];
   dataSvc.getEntry(entryId, FLAG_THRESHOLD)
-    .then(function(entry) {
-      if (!entry) {
-        res.status(404).end();
-      } else {
-        res.json(entry);
-      }
-    })
+    .then(genResponseHandler(res))
     .catch(next);
 });
 
@@ -153,7 +147,11 @@ router.post('/:entryId/definitions/:definitionId/votes', function(req, res, next
 function genResponseHandler(res, successCode) {
   return (opResult) => {
     if (opResult.success) {
-      res.status(successCode || 200).end();
+      if (opResult.payload) {
+        res.status(successCode || 200).json(opResult.payload);
+      } else {
+        res.status(successCode || 200).end();
+      }
     } else {
       let msg = 'Something went wrong.';
       let statusCode = 500;
@@ -161,7 +159,11 @@ function genResponseHandler(res, successCode) {
         statusCode = opResult.statusCode;
         msg = (opResult.error || {}).message || '';
       }
-      res.status(statusCode).send(msg);
+      if (opResult.payload) {
+        res.status(statusCode).json(opResult.payload);
+      } else {
+        res.status(statusCode).send(msg);
+      }
     }
   };
 }

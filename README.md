@@ -85,7 +85,7 @@ Same deal as running locally, except on your favorite hosting solution. Whatever
 - [x] General API security (secured via on / off flag + slack oauth flow)
 - [x] Slack request verification (secure slack integration API from DDoS / malicious intent)
 - [x] Test terms that have spaces in them
-- [ ] Improve matching algorithm to provide suggestions
+- [x] Improve matching algorithm to provide suggestions
 - [x] Improve naive search performance with binaryIndexOf
 - [x] Slack limit number of definitions shown
 - [x] Limit "contribute" to current channel-like conversation

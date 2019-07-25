@@ -75,15 +75,21 @@ function dataService() {
     }
     return _read()
       .then(function(dict) {
-        const entryId = matcherSvc.match(dict.entryIds, entryName);
+        let matches = matcherSvc.exactMatch(dict.entryIds, entryName);
+        let entryId = null;
+        if (matches.length === 0) {
+          matches = matcherSvc.match(dict.entryIds, entryName);
+        } else {
+          entryId = matches[0];
+        }
         const entry = dict.entries[entryId];
-        if (!entry) {
-          return null;
+        if (!entryId || !entry) {
+          throw opResult(false, 404, null, matches);
         }
         entry.definitions = entry.definitions
           .filter((definition) => definition.flaggedCount < flagThreshold)
           .slice(start, end);
-        return entry;
+        return opResult(true, 200, null, entry);
       });
   }
 

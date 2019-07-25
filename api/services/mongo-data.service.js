@@ -35,7 +35,7 @@ function mongoDataService(connectionString) {
           .find({}, { "_id": 1 })
           .toArray()
           .then((entries) => {
-            return entries.map((entry) => entry._id);
+            return entries.map((entry) => entry._id).sort();
           })
       });
   }
@@ -49,7 +49,16 @@ function mongoDataService(connectionString) {
     }
     return this.getEntryIds()
       .then((entryIds) => {
-        const entryId = matcherSvc.match(entryIds, entryName);
+        let matches = matcherSvc.exactMatch(entryIds, entryName);
+        let entryId = null;
+        if (matches.length === 0) {
+          matches = matcherSvc.match(entryIds, entryName);
+        } else {
+          entryId = matches[0];
+        }
+        if (!entryId) {
+          throw opResult(false, 404, null, matches);
+        }
         return this._getClient()
           .then((client) => {
             return client
@@ -60,16 +69,16 @@ function mongoDataService(connectionString) {
                 if (!entry) {
                   return null;
                 }
-                return {
+                return opResult(true, 200, null, {
                   ...entry,
                   definitions: entry.definitions
                     .filter((definition) => definition.flaggedCount < flagThreshold)
                     .slice(start, end)
-                };
+                });
               });
           });
-              
-      });
+      })
+      .catch(wrapError);
   };
 
   const addEntry = function(name, definitionValue, userInfo) {

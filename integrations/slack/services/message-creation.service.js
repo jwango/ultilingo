@@ -1,16 +1,25 @@
 const actions = require('../helpers/actions');
 const matcherSvc = require('../../../api/services/matcher.service');
+const log4js = require('log4js');
+const logger = log4js.getLogger();
 
 function messageCreationService() {
 
-  const createNotFoundMessage = function(word) {
+  const createNotFoundMessage = function(word, suggestions) {
+      let resp = "An entry for " + word + " does not exist.";
+      if (suggestions && suggestions.length > 0) {
+        resp += " Here are some suggestions:";
+        for (let i = 0; i < Math.min(suggestions.length, 3); i++) {
+          resp += "\n- " + suggestions[i];
+        }
+      }
+      resp += "\n Or would you like to add this entry?";
       const text = 
         [{
             "type": "section",
             "text": {
-                "type": "plain_text",
-                "text": "An entry for " + word + " does not exist would you like to add one?",
-                "emoji": true
+                "type": "mrkdwn",
+                "text": resp
             }
         }];
       const button = 

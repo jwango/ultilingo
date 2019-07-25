@@ -1,15 +1,22 @@
 const searchUtils = require('../helpers/search-utils');
+const FuzzySearch = require('fuzzy-search');
 
 function matcherService() {
 
   // returns the entryId for the given term
-  const match = function(entryIds, term) {
+  const simpleMatch = function(entryIds, term) {
     const ndx = searchUtils.binaryIndexOf(entryIds, (term || "").toLowerCase());
     if (ndx >= 0) { 
-      return entryIds[ndx];
+      return [entryIds[ndx]];
     }
-    return null;
+    return [];
   };
+
+  const fuzzyMatch = function(entryIds, term) {
+    const searcher = new FuzzySearch(entryIds, [], { sort: true });
+    const matches = searcher.search(term);
+    return matches.slice(0, 3);
+  }
 
   const mapToEntryId = function(entryName) {
     if (!entryName) {
@@ -21,7 +28,8 @@ function matcherService() {
   // Public API
   return {
     mapToEntryId: mapToEntryId,
-    match: match
+    match: fuzzyMatch,
+    exactMatch: simpleMatch
   };
 }
 

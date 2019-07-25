@@ -59,17 +59,17 @@ router.post('/ultilingo', function(req, res, next) {
       });
     } else {
       dataSvc.getEntry(wordToDefine, FLAG_THRESHOLD, 0, 3)
-        .then(function (entry) {
-          if(!entry){
+        .then(function (opResult) {
+          if (!opResult.success){
               // return "dont have a this entry would you like to add it"
-              const blocks = messageCreationSvc.createNotFoundMessage(wordToDefine);
+              const blocks = messageCreationSvc.createNotFoundMessage(wordToDefine, opResult.payload);
               res.json({
                   "blocks": blocks
               });
           }
           else {
               // return all of the defintions
-              const blocks = messageCreationSvc.createDefinitionMessage(entry, 0);
+              const blocks = messageCreationSvc.createDefinitionMessage(opResult.payload, 0);
               res.json({
                   "blocks": blocks
               });
