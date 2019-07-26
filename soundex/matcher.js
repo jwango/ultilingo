@@ -32,7 +32,7 @@ const matcher = function(strings) {
       return;
     }
     const val = _encode.call(this, str, lang);
-    matchMin = Math.min(val.length, matchMin || 3);
+    matchMin = matchMin || 2;
     matchMaxDiff = Math.max(0, matchMaxDiff || 2);
     let results = [];
     const findResult = this.tries[lang].find(val);

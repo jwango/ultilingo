@@ -29,7 +29,12 @@ const testWords = [
   'signe',
   'ça',
   'basilic',
-  'basilique'
+  'basilique',
+  'd',
+  'dvp',
+  'dvpe',
+  'dvper',
+  'dvperer'
 ];
 
 // test soundex
