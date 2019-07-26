@@ -75,13 +75,9 @@ function dataService() {
     }
     return _read()
       .then(function(dict) {
-        let matches = matcherSvc.exactMatch(dict.entryIds, entryName);
-        let entryId = null;
-        if (matches.length === 0) {
-          matches = matcherSvc.match(dict.entryIds, entryName);
-        } else {
-          entryId = matches[0];
-        }
+        const matchResult = matcherSvc.match(dict.entryIds, entryName);
+        const entryId = matchResult.exact || null;
+        const matches = matchResult.matches.slice(0, 3);
         const entry = dict.entries[entryId];
         if (!entryId || !entry) {
           throw opResult(false, 404, null, matches);

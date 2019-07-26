@@ -49,13 +49,9 @@ function mongoDataService(connectionString) {
     }
     return this.getEntryIds()
       .then((entryIds) => {
-        let matches = matcherSvc.exactMatch(entryIds, entryName);
-        let entryId = null;
-        if (matches.length === 0) {
-          matches = matcherSvc.match(entryIds, entryName);
-        } else {
-          entryId = matches[0];
-        }
+        const matchResult = matcherSvc.match(entryIds, entryName);
+        const entryId = matchResult.exact || null;
+        const matches = matchResult.matches.slice(0, 3);
         if (!entryId) {
           throw opResult(false, 404, null, matches);
         }
