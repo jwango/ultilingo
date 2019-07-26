@@ -26,12 +26,14 @@ const matcher = function(strings) {
     }
   }
 
-  const find = function(str, lang) {
+  const find = function(str, lang, matchMin, matchMaxDiff) {
     lang = lang || 'ENG';
     if (!this.tries[lang]) {
       return;
     }
     const val = _encode.call(this, str, lang);
+    matchMin = Math.min(val.length, matchMin || 3);
+    matchMaxDiff = Math.max(0, matchMaxDiff || 2);
     let results = [];
     const findResult = this.tries[lang].find(val);
     if (findResult.exact == '') {
@@ -45,7 +47,9 @@ const matcher = function(strings) {
     }
     const trieResults = trie.gather(findResult.tail).map((res) => findResult.exact.slice(0, findResult.exact.length - 1) + res);
     for (let i = 0; i < trieResults.length; i++) {
-      results = results.concat(this.dict[trieResults[i]] || []);
+      if (findResult.exact.length >= matchMin && (trieResults[i].length - findResult.exact.length) <= matchMaxDiff) {
+        results = results.concat(this.dict[trieResults[i]] || []);
+      }
     }
     return {
       exact: results.find((res) => res === str),
