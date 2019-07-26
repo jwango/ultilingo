@@ -21,7 +21,9 @@ const matcher = function(strings) {
     if (!this.dict[val]) {
       this.dict[val] = [];
     }
-    this.dict[val].push(str);
+    if (!this.dict[val].includes(str)) {
+      this.dict[val].push(str);
+    }
   }
 
   const find = function(str, lang) {
