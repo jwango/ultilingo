@@ -1,12 +1,14 @@
+const searchUtils = require('../api/helpers/search-utils');
+
 // global helpers
-const node = function(value, parent, isStr) {
+const node = function(value, isStr, parent, index) {
   const n = {
     value: value,
     isStr: isStr,
     children: []
   };
   if (parent) {
-    parent.children.push(n);
+    searchUtils.arrInsert(parent.children, n, index);
   }
   return n;
 }
@@ -35,7 +37,7 @@ const gather = function(node) {
   return _gatherHelper('', node);
 }
 
-const _toStringPrefix = function(depth, branches) {
+const _toStringPrefix = function(depth, branches, isStr) {
   if (depth <= 0) {
     return '';
   }
@@ -47,7 +49,11 @@ const _toStringPrefix = function(depth, branches) {
       prefix += '  ';
     }
   }
-  prefix += '|-';
+  if (isStr) {
+    prefix += '|>'
+  } else {
+    prefix += '|-';
+  }
   return prefix;
 }
 
@@ -56,7 +62,7 @@ const _toStringHelper = function(acc, node, depth, branches) {
     return '';
   }
   const c = node.value ? node.value : '*';
-  acc += '\n' + _toStringPrefix(depth, branches) + c;
+  acc += '\n' + _toStringPrefix(depth, branches, node.isStr) + c;
   for (let i = 0; i < node.children.length; i++) {
     let newBranches = [...branches];
     if (i < node.children.length - 1) {
@@ -73,10 +79,19 @@ const toString = function(node) {
 
 // trie definition
 const trie = function() {
-  const root = node(null, undefined);
-  const valueMatcher = function(val) {
-    return function(node) {
-      return node.value === val;
+  const root = node(null, false);
+  const _getNodeValue = function(node) {
+    return node.value;
+  }
+
+  const _findChild = function(node, value, giveNearest) {
+    let index = searchUtils.binaryIndexOf(node.children, value, {
+      giveNearest: giveNearest,
+      mapFn: _getNodeValue
+    });
+    return {
+      index: index,
+      node: node.children[index]
     };
   }
 
@@ -85,15 +100,52 @@ const trie = function() {
     let exists = true;
     for (let i = 0; i < str.length; i += 1) {
       const c = str.charAt(i);
-      let next = cur.children.find(valueMatcher(c));
-      if (!next) {
-        next = node(c, cur);
+      let childResult = _findChild(cur, c, true);
+      let next = childResult.node || {};
+      if (next.value !== c) {
+        next = node(c, false, cur, childResult.index);
         exists = false;
       }
       cur = next;
     }
     cur.isStr = true;
     return !exists;
+  }
+
+  const _removeHelper = function(path) {
+    if (!path || path.length <= 1) {
+      return;
+    }
+    const tailNode = path.pop();
+    const parent = path.pop();
+    path.push(parent);
+    if (tailNode.children.length === 0) {
+      const childIndex = _findChild(parent, tailNode.value).index;
+      parent.children.splice(childIndex, 1);
+      _removeHelper(path);
+    }
+  }
+
+  const remove = function(str) {
+    let cur = this.root;
+    let i = 0;
+    let path = [this.root];
+    let res = '';
+    while (i < str.length && cur) {
+      const c = str.charAt(i);
+      cur = _findChild(cur, c).node;
+      path.push(cur);
+      if (cur) {
+        res += c;
+      }
+      i += 1;
+    }
+    if (i === str.length && cur && cur.isStr) {
+      cur.isStr = false;
+      _removeHelper(path);
+      return res;
+    }
+    return null;
   }
 
   const find = function(str) {
@@ -103,7 +155,7 @@ const trie = function() {
     let res = '';
     while (i < str.length && cur) {
       const c = str.charAt(i);
-      cur = cur.children.find(valueMatcher(c));
+      cur = _findChild(cur, c).node;
       if (cur) {
         res += c;
         save = cur;
@@ -124,6 +176,7 @@ const trie = function() {
   return Object.assign(instance, {
     root,
     add: add.bind(instance),
+    remove: remove.bind(instance),
     find: find.bind(instance),
     toString: trieToString.bind(instance)
   });

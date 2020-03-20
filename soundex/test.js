@@ -53,12 +53,21 @@ t.add('testes');
 t.add('tester');
 console.log(JSON.stringify(t.find('tester')));
 console.log(t.toString());
+t.remove('testosteron');
+console.log(t.toString());
+t.remove('testes');
+console.log(t.toString());
 
 // test matcher integration of soundex + trie
-const m = matcher(testWords);
+/*const m = matcher(testWords);
 const trieKeys = Object.keys(m.tries);
 for (let i = 0; i < trieKeys.length; i += 1) {
   console.log(m.tries[trieKeys[i]].toString());
 }
 const findResult = m.find('censé', 'ENG');
 console.log(JSON.stringify(findResult, null, 2));
+console.log(m.remove('dvpe'));
+console.log(m.remove('dvpe', 'FRE'));
+for (let i = 0; i < trieKeys.length; i += 1) {
+  console.log(m.tries[trieKeys[i]].toString());
+}*/

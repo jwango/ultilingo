@@ -45,6 +45,19 @@ const binaryIndexOf = function(arr, val, options) {
   }
 }
 
+const arrInsert = function(arr, val, index) {
+  arr.push(null);
+  let i = arr.length - 1;
+  index = Math.max(Math.min(index == undefined ? i : index, arr.length - 1), 0);
+  while (i > index) {
+    arr[i] = arr[i - 1];
+    i -= 1;
+  }
+  arr[index] = val;
+  return arr;
+}
+
 module.exports = {
-  binaryIndexOf: binaryIndexOf
+  binaryIndexOf: binaryIndexOf,
+  arrInsert: arrInsert
 };

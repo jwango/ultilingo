@@ -26,6 +26,27 @@ const matcher = function(strings) {
     }
   }
 
+  const remove = function(str, lang) {
+    lang = lang || 'ENG';
+    if (!this.tries[lang]) {
+      return;
+    }
+    let removed = str;
+    const val = _encode.call(this, str, lang);
+    if (this.dict[val] && this.dict[val].length > 0) {
+      if (this.dict[val].length === 1) {
+        removed = this.tries[lang].remove(val);
+      }
+      if (removed) {
+        const ndx = this.dict[val].findIndex((entry) => entry === str);
+        if (ndx != -1) {
+          this.dict[val].splice(ndx, 1);
+        }
+      }
+    }
+    return removed;
+  }
+
   const find = function(str, lang, matchMin, matchMaxDiff) {
     lang = lang || 'ENG';
     if (!this.tries[lang]) {
@@ -64,6 +85,7 @@ const matcher = function(strings) {
   let instance = {};
   instance = Object.assign(instance, {
     add: add.bind(instance),
+    remove: remove.bind(instance),
     find: find.bind(instance),
     tries: {
       'ENG': trie.build(),
